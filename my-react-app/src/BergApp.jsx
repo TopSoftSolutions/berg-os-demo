@@ -856,12 +856,222 @@ const versionCompare = {
 };
 const fmt = (v) => { if(v==null) return '—'; const a=Math.abs(v); if(a>=1e6) return `${(v/1e6).toFixed(1)}M ֏`; if(a>=1e3) return `${Math.round(v/1e3)}K ֏`; return `${v.toLocaleString()} ֏`; };
 const fmtFull = (v) => v==null?'—':`${v.toLocaleString()} ֏`;
-const getUser = (id) => users.find(u=>u.id===id) || { name: '—', initials: '—', role: '—' };
-const getClient = (id) => clients.find(c=>c.id===id) || { name: '—' };
-const getProject = (id) => projects.find(p=>p.id===id) || null;
-const getMaterial = (id) => materials.find(m=>m.id===id) || { name: '—' };
-const getNode = (projectId, nodeId) => (projectNodes[projectId]||[]).find(n=>n.id===nodeId) || null;
-const getLocation = (id) => inventoryLocations.find(l => l.id === id) || { id, name: '—', code: '—', type: 'unknown' };
+const TRANSLATIONS = {
+  'Director': 'Տնօրեն',
+  'Commercial Manager': 'Առևտրային մենեջեր',
+  'Project Manager': 'Նախագծի ղեկավար',
+  'Cost Engineer': 'Ծախսերի ինժեներ',
+  'Superintendent': 'Շինհրապարակի ղեկավար',
+  'Warehouse Manager': 'Պահեստի ղեկավար',
+  'Approver': 'Հաստատող',
+  'Tigran Harutyunyan': 'Տիգրան Հարությունյան',
+  'Lilit Sargsyan': 'Լիլիթ Սարգսյան',
+  'Narek Petrosyan': 'Նարեկ Պետրոսյան',
+  'Ani Mkrtchyan': 'Անի Մկրտչյան',
+  'Vardan Melkonyan': 'Վարդան Մելքոնյան',
+  'Karen Avetisyan': 'Կարեն Ավետիսյան',
+  'Mariam Hovhannisyan': 'Մարիամ Հովհաննիսյան',
+  'Dashboard': 'Վահանակ',
+  'Projects': 'Նախագծեր',
+  'Estimates': 'Նախահաշիվներ',
+  'Materials': 'Նյութեր',
+  'Warehouse': 'Պահեստ',
+  'Transfers': 'Տեղափոխումներ',
+  'Field Reports': 'Դաշտային հաշվետվություններ',
+  'Timesheets': 'Աշխատաժամերի գրանցումներ',
+  'Approvals': 'Հաստատումներ',
+  'Catalogs': 'Կատալոգներ',
+  'Admin': 'Կառավարում',
+  'Execution': 'Կատարման փուլ',
+  'Finishing': 'Ավարտական փուլ',
+  'Estimating': 'Նախահաշվարկ',
+  'Mobilization': 'Մոբիլիզացիա',
+  'High': 'Բարձր',
+  'Medium': 'Միջին',
+  'Low': 'Ցածր',
+  'Pending': 'Սպասման մեջ',
+  'Pending Approval': 'Սպասում է հաստատման',
+  'Approved': 'Հաստատված',
+  'Fulfilled': 'Կատարված',
+  'Partially Fulfilled': 'Մասամբ կատարված',
+  'Submitted': 'Ներկայացված',
+  'Draft': 'Սևագիր',
+  'Superseded': 'Փոխարինված',
+  'Rejected': 'Մերժված',
+  'Accepted': 'Ընդունված',
+  'Accepted with Discrepancy': 'Ընդունված շեղումով',
+  'Pending Receipt': 'Սպասվում է ընդունում',
+  'Urgent': 'Շտապ',
+  'Normal': 'Սովորական',
+  'In Progress': 'Ընթացքի մեջ',
+  'In Transit': 'Ճանապարհին',
+  'Picked': 'Հավաքված',
+  'Partially Received': 'Մասամբ ընդունված',
+  'Received': 'Ստացված',
+  'Cancelled': 'Չեղարկված',
+  'Portfolio Dashboard': 'Պորտֆելի վահանակ',
+  'March 10, 2025 — Overview of all active projects': '10 մարտի, 2025 թ. — բոլոր ակտիվ նախագծերի ամփոփ տեսք',
+  'Active Projects': 'Ակտիվ նախագծեր',
+  'Total Baseline': 'Ընդհանուր բազային բյուջե',
+  'Total Actual': 'Փաստացի ընդհանուր ծախս',
+  'Budget at Risk': 'Ռիսկային բյուջե',
+  'Pending Approvals': 'Սպասվող հաստատումներ',
+  'Missing Reports': 'Բացակա հաշվետվություններ',
+  'Budget by Project (AMD millions)': 'Բյուջեն ըստ նախագծերի (մլն դրամ)',
+  'Baseline': 'Բազային',
+  'Actual': 'Փաստացի',
+  'Approval Queue': 'Հաստատումների հերթ',
+  'Projects at Risk': 'Ռիսկային նախագծեր',
+  'Project': 'Նախագիծ',
+  'Variance': 'Շեղում',
+  'Risk': 'Ռիսկ',
+  'Progress': 'Առաջընթաց',
+  'Material Alerts': 'Նյութերի ծանուցումներ',
+  'Low Stock Alert': 'Ցածր մնացորդի ահազանգ',
+  'Recent Field Activity': 'Վերջին դաշտային ակտիվություն',
+  'BLOCKER': 'ԱՐԳԵԼԱԿ',
+  'Search projects, materials, requests...': 'Որոնել նախագծեր, նյութեր, հայտեր...',
+  'Search projects...': 'Որոնել նախագծեր...',
+  'Notifications': 'Ծանուցումներ',
+  'New': 'Նոր',
+  'New Project': 'Նոր նախագիծ',
+  'Material Request': 'Նյութի հայտ',
+  'Weekly Report': 'Շաբաթական հաշվետվություն',
+  'Timesheet Entry': 'Աշխատաժամի մուտք',
+  'Change Order': 'Փոփոխության հրաման',
+  'Transfer Order': 'Տեղափոխման պատվեր',
+  'DEMO ROLE SWITCHER': 'ԴԵՄՈ ԴԵՐԵՐԻ ՓՈԽԱՐԿԻՉ',
+  'Switched to Director view': 'Անցում դեպի տնօրենի դիտում',
+  'Switched to Project Manager view': 'Անցում դեպի նախագծի ղեկավարի դիտում',
+  'Switched to Superintendent view': 'Անցում դեպի շինհրապարակի ղեկավարի դիտում',
+  'Switched to Warehouse Manager view': 'Անցում դեպի պահեստի ղեկավարի դիտում',
+  'Switched to Cost Engineer view': 'Անցում դեպի ծախսերի ինժեների դիտում',
+  'Ameria Business Center': 'Ամերիա բիզնես կենտրոն',
+  'Riverside Development CJSC': 'Ռիվերսայդ Դիվելոփմենթ ՓԲԸ',
+  'CityMall Armenia': 'ՍիթիՄոլ Արմենիա',
+  'Ararat Bank': 'ԱրարատԲանկ',
+  'Cascade Offices LLC': 'Կասկադ Օֆիսիզ ՍՊԸ',
+  'Ameria Business Center – 3rd Floor Renovation': 'Ամերիա բիզնես կենտրոն – 3-րդ հարկի վերանորոգում',
+  'Riverside Apartments – Block B Fit-Out': 'Riverside Apartments – Բլոկ B-ի ներքին հարդարում',
+  'CityMall Food Court Refurbishment': 'CityMall ֆուդ-քորթի թարմացում',
+  'Ararat Bank – Arabkir Branch Prototype': 'ԱրարատԲանկ – Արաբկիր մասնաճյուղի նախատիպ',
+  'Cascade Offices – Level 5 Upgrade': 'Cascade Offices – 5-րդ հարկի արդիականացում',
+  'Office Interior': 'Գրասենյակային ինտերիեր',
+  'Residential Fit-Out': 'Բնակելի ինտերիերի հարդարում',
+  'Commercial Interior': 'Կոմերցիոն ինտերիեր',
+  'Bank Branch Interior': 'Բանկի մասնաճյուղի ինտերիեր',
+  'Office Upgrade': 'Գրասենյակի արդիականացում',
+  'Block B': 'Բլոկ B',
+  'Floor 1': '1-ին հարկ',
+  'Floor 2': '2-րդ հարկ',
+  'Floor 3': '3-րդ հարկ',
+  'Apartment 101': 'Բնակարան 101',
+  'Apartment 102': 'Բնակարան 102',
+  'Apartment 201': 'Բնակարան 201',
+  'Apartment 202': 'Բնակարան 202',
+  'Apartment 203': 'Բնակարան 203',
+  'Corridor F1': 'Միջանցք F1',
+  'Corridor F2': 'Միջանցք F2',
+  'Lobby': 'Լոբբի',
+  'Staircore': 'Սանդղահարթակ',
+  'Technical Room': 'Տեխնիկական սենյակ',
+  'Building Main': 'Հիմնական շենք',
+  'Level 3': '3-րդ մակարդակ',
+  'Reception': 'Ռեցեպշն',
+  'Open Office East': 'Բաց գրասենյակ, արևելք',
+  'Open Office West': 'Բաց գրասենյակ, արևմուտք',
+  'Meeting Room 01': 'Հանդիպումների սենյակ 01',
+  'Meeting Room 02': 'Հանդիպումների սենյակ 02',
+  'Executive Office': 'Ղեկավարի աշխատասենյակ',
+  'Pantry': 'Խոհանոցային անկյուն',
+  'Arabkir Branch': 'Արաբկիր մասնաճյուղ',
+  'Ground Floor': '1-ին հարկ',
+  'Client Hall': 'Հաճախորդների սրահ',
+  'Teller Zone': 'Գանձապահների գոտի',
+  'Self-Service Area': 'Սպասարկման ինքնուրույն գոտի',
+  'Entrance Vestibule': 'Մուտքի վեստիբյուլ',
+  'WC Public': 'Հանրային սանհանգույց',
+  'Back Office': 'Ներքին գրասենյակ',
+  'Manager Office': 'Մենեջերի սենյակ',
+  'Staff Room': 'Աշխատակազմի սենյակ',
+  'Server / IT Room': 'Սերվերային / ՏՏ սենյակ',
+  'WC Staff': 'Աշխատակազմի սանհանգույց',
+  'Block': 'Բլոկ',
+  'Floor': 'Հարկ',
+  'Apartment': 'Բնակարան',
+  'Corridor': 'Միջանցք',
+  'Common Area': 'Ընդհանուր տարածք',
+  'Technical': 'Տեխնիկական',
+  'Building': 'Շենք',
+  'Room': 'Սենյակ',
+  'Zone': 'Գոտի',
+  'Gypsum Board 12.5mm': 'Գիպսաստվարաթուղթ 12.5 մմ',
+  'Moisture Resistant Board 12.5mm': 'Խոնավակայուն թերթ 12.5 մմ',
+  'Metal Stud 50mm': 'Մետաղական ստուդ 50 մմ',
+  'Metal Track 50mm': 'Մետաղական ուղեցույց 50 մմ',
+  'Drywall Screws 25mm': 'Գիպսաստվարաթղթի պտուտակներ 25 մմ',
+  'Joint Compound 20kg': 'Շպակլյովկա 20 կգ',
+  'Mineral Wool 50mm': 'Հանքային բուրդ 50 մմ',
+  'Interior Paint White 15L': 'Ներքին սպիտակ ներկ 15 լ',
+  'Primer Deep Penetration 10L': 'Խորը ներթափանցման այբբենարան 10 լ',
+  'Ceramic Tile 600x600 Grey': 'Կերամիկական սալիկ 600x600 մոխրագույն',
+  'Tile Adhesive 25kg': 'Սալիկի սոսինձ 25 կգ',
+  'Tile Grout 5kg': 'Սալիկի ֆուգա 5 կգ',
+  'LED Panel 600x600': 'LED պանել 600x600',
+  'Laminate Flooring AC4 Oak': 'Լամինատ AC4 կաղնի',
+  'Skirting PVC White': 'PVC պլինտուս սպիտակ',
+  'Electrical Cable NYM 3x2.5': 'Էլեկտրական մալուխ NYM 3x2.5',
+  'PVC Conduit 20mm': 'PVC խողովակ 20 մմ',
+  'Silicone Sealant White': 'Սպիտակ սիլիկոնային հերմետիկ',
+  'Central Warehouse': 'Կենտրոնական պահեստ',
+  'Purchase': 'Գնում',
+  'Mixed': 'Խառը',
+  'TBD': 'Կճշտվի',
+  'Yesterday': 'Երեկ',
+  'Mar 8': 'Մրտ 8',
+  'Material request MR-24108 submitted for Apartment 203': 'MR-24108 նյութի հայտը ներկայացվել է Բնակարան 203-ի համար',
+  'Delivery DL-24044 expected today at Technical Room': 'DL-24044 առաքումը սպասվում է այսօր Տեխնիկական սենյակում',
+  'Estimate EST-24029-v2.0 is awaiting approval': 'EST-24029-v2.0 նախահաշիվը սպասում է հաստատման',
+  'Weekly report missing for Riverside – Corridor F2': 'Riverside – Միջանցք F2-ի շաբաթական հաշվետվությունը բացակայում է',
+  'Budget variance exceeded 10% for Open Office East': 'Բաց գրասենյակ, արևելք տարածքում բյուջեի շեղումը գերազանցել է 10%-ը',
+  'Select a project': 'Ընտրեք նախագիծ',
+  'PM': 'ՆԾ',
+  'Super': 'Պատասխանատու',
+  'Open Bitrix Workspace': 'Բացել Bitrix միջավայրը',
+  'Shared Files': 'Կիսված ֆայլեր',
+  'Baseline Budget': 'Բազային բյուջե',
+  'Actual Spend': 'Փաստացի ծախս',
+  'Open Requests': 'Բաց հայտեր',
+  'Last Report': 'Վերջին հաշվետվություն',
+  'Completion': 'Ավարտվածություն',
+  'Project Details': 'Նախագծի տվյալներ',
+  'Recent Activity': 'Վերջին ակտիվություն',
+  'Code': 'Կոդ',
+  'Client': 'Պատվիրատու',
+  'Type': 'Տեսակ',
+  'Stage': 'Փուլ',
+  'Last Update': 'Վերջին թարմացում',
+  'PROJECT HIERARCHY': 'ՆԱԽԱԳԾԻ ԿԱՌՈՒՑՎԱԾՔ',
+  'Responsible': 'Պատասխանատու',
+  'Open Estimate': 'Բացել նախահաշիվը',
+  'Create Material Request': 'Ստեղծել նյութի հայտ',
+  'Add Child Node': 'Ավելացնել ենթահանգույց',
+  'Select a node from the hierarchy': 'Ընտրեք հանգույց կառուցվածքից',
+  'NODE SUMMARY': 'ՀԱՆԳՈՒՅՑԻ ԱՄՓՈՓՈՒՄ',
+  'Weekly Reports': 'Շաբաթական հաշվետվություններ',
+  'Deliveries': 'Առաքումներ',
+  'Select a node': 'Ընտրեք հանգույց',
+};
+
+const tr = (value) => typeof value === 'string' ? (TRANSLATIONS[value] || value) : value;
+const translateFields = (obj, fields) => obj ? { ...obj, ...Object.fromEntries(fields.map((field) => [field, tr(obj[field])])) } : obj;
+
+const getUser = (id) => translateFields(users.find(u=>u.id===id) || { name: '—', initials: '—', role: '—' }, ['name', 'role']);
+const getClient = (id) => translateFields(clients.find(c=>c.id===id) || { name: '—' }, ['name']);
+const getProject = (id) => translateFields(projects.find(p=>p.id===id) || null, ['name', 'type', 'stage', 'risk']);
+const getMaterial = (id) => translateFields(materials.find(m=>m.id===id) || { name: '—' }, ['name', 'category', 'unit']);
+const getNode = (projectId, nodeId) => translateFields((projectNodes[projectId]||[]).find(n=>n.id===nodeId) || null, ['name', 'type']);
+const getLocation = (id) => translateFields(inventoryLocations.find(l => l.id === id) || { id, name: '—', code: '—', type: 'unknown' }, ['name']);
 
 // ============================================================
 // STYLES
@@ -927,7 +1137,7 @@ function StatusBadge({ status, size = 'sm' }) {
   const s = map[status] || { bg: '#F3F4F6', color: '#6B7280' };
   return (
     <span style={{ display:'inline-flex',alignItems:'center',padding: size==='xs'?'1px 6px':'2px 10px',borderRadius:4,fontSize: size==='xs'?10:11,fontWeight:600,letterSpacing:'0.02em',background:s.bg,color:s.color,whiteSpace:'nowrap' }}>
-      {status}
+      {tr(status)}
     </span>
   );
 }
@@ -953,11 +1163,11 @@ function KpiCard({ label, value, sub, icon: Icon, color = COLORS.accent, onClick
       onMouseEnter={e=>{ if(onClick) e.currentTarget.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'; }}
       onMouseLeave={e=>e.currentTarget.style.boxShadow='none'}>
       <div style={{ display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8 }}>
-        <span style={{ fontSize:12,color:COLORS.textSecondary,fontWeight:500 }}>{label}</span>
+        <span style={{ fontSize:12,color:COLORS.textSecondary,fontWeight:500 }}>{tr(label)}</span>
         {Icon && <Icon size={16} style={{ color }} />}
       </div>
       <div style={{ fontSize:22,fontWeight:700,color:COLORS.text,lineHeight:1.2 }}>{value}</div>
-      {sub && <div style={{ fontSize:11,color:COLORS.textMuted,marginTop:4 }}>{sub}</div>}
+      {sub && <div style={{ fontSize:11,color:COLORS.textMuted,marginTop:4 }}>{tr(sub)}</div>}
     </div>
   );
 }
@@ -970,7 +1180,7 @@ function Toast({ message, visible, onClose }) {
   return (
     <div style={{ position:'fixed',bottom:24,right:24,background:'#1C1E26',color:'white',padding:'12px 20px',borderRadius:8,fontSize:13,fontWeight:500,zIndex:9999,display:'flex',alignItems:'center',gap:10,boxShadow:'0 8px 30px rgba(0,0,0,0.2)',animation:'slideUp 0.3s ease' }}>
       <Check size={16} style={{ color:COLORS.green }} />
-      {message}
+      {tr(message)}
       <X size={14} style={{ cursor:'pointer',opacity:0.6 }} onClick={onClose} />
     </div>
   );
@@ -999,7 +1209,7 @@ function TreeView({ nodes, selectedId, onSelect, projectId }) {
           onMouseEnter={e=>{ if(!isSelected) e.currentTarget.style.background='#F9FAFB'; }}
           onMouseLeave={e=>{ if(!isSelected) e.currentTarget.style.background='transparent'; }}>
           {hasChildren ? (isExpanded ? <ChevronDown size={14} style={{ color:COLORS.textMuted,flexShrink:0 }} /> : <ChevronRight size={14} style={{ color:COLORS.textMuted,flexShrink:0 }} />) : <span style={{ width:14,flexShrink:0 }} />}
-          <span style={{ fontWeight: isSelected?600:400,color:COLORS.text,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{node.name}</span>
+          <span style={{ fontWeight: isSelected?600:400,color:COLORS.text,flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{tr(node.name)}</span>
           <span style={{ fontSize:10,color:COLORS.textMuted,flexShrink:0 }}>{node.progress}%</span>
         </div>
         {isExpanded && children.map(c=>renderNode(c,depth+1))}
@@ -1204,34 +1414,34 @@ export default function BergApp() {
     return (
       <div>
         <div style={{ marginBottom:24 }}>
-          <h1 style={{ fontSize:22,fontWeight:700,color:COLORS.text,margin:0 }}>Portfolio Dashboard</h1>
-          <p style={{ fontSize:13,color:COLORS.textSecondary,margin:'4px 0 0' }}>March 10, 2025 — Overview of all active projects</p>
+          <h1 style={{ fontSize:22,fontWeight:700,color:COLORS.text,margin:0 }}>{tr('Portfolio Dashboard')}</h1>
+          <p style={{ fontSize:13,color:COLORS.textSecondary,margin:'4px 0 0' }}>{tr('March 10, 2025 — Overview of all active projects')}</p>
         </div>
 
         <div style={{ display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(180px,1fr))',gap:12,marginBottom:24 }}>
           <KpiCard label="Active Projects" value={projects.length} icon={Building2} color={COLORS.accent} onClick={()=>setCurrentPage('projects')} />
           <KpiCard label="Total Baseline" value={fmt(totalBaseline)} icon={DollarSign} color={COLORS.accent} />
           <KpiCard label="Total Actual" value={fmt(totalActual)} icon={TrendingUp} color={COLORS.green} />
-          <KpiCard label="Budget at Risk" value={fmt(totalActual-totalBaseline>0?totalActual-totalBaseline:0)} sub={atRisk.length+" projects flagged"} icon={AlertTriangle} color={COLORS.orange} />
+          <KpiCard label="Budget at Risk" value={fmt(totalActual-totalBaseline>0?totalActual-totalBaseline:0)} sub={`${atRisk.length} ռիսկային նախագիծ`} icon={AlertTriangle} color={COLORS.orange} />
           <KpiCard label="Pending Approvals" value={pendingApprovals} icon={CheckSquare} color={COLORS.yellow} onClick={()=>setCurrentPage('approvals')} />
           <KpiCard label="Missing Reports" value={missingReports} icon={FileText} color={COLORS.red} onClick={()=>setCurrentPage('field-reports')} />
         </div>
 
         <div style={{ display:'grid',gridTemplateColumns:'2fr 1fr',gap:16,marginBottom:16 }}>
           <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20 }}>
-            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 16px',color:COLORS.text }}>Budget by Project (AMD millions)</h3>
+            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 16px',color:COLORS.text }}>{tr('Budget by Project (AMD millions)')}</h3>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={budgetData} barGap={4}>
                 <XAxis dataKey="name" tick={{ fontSize:11 }} />
                 <YAxis tick={{ fontSize:11 }} />
                 <Tooltip formatter={(v)=>`${v.toFixed(1)}M ֏`} />
-                <Bar dataKey="baseline" fill="#CBD5E1" name="Baseline" radius={[3,3,0,0]} />
-                <Bar dataKey="actual" fill={COLORS.accent} name="Actual" radius={[3,3,0,0]} />
+                <Bar dataKey="baseline" fill="#CBD5E1" name={tr('Baseline')} radius={[3,3,0,0]} />
+                <Bar dataKey="actual" fill={COLORS.accent} name={tr('Actual')} radius={[3,3,0,0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
           <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20 }}>
-            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>Approval Queue</h3>
+            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>{tr('Approval Queue')}</h3>
             <div style={{ display:'flex',flexDirection:'column',gap:8 }}>
               {approvals.filter(a=>a.status==='Pending').slice(0,5).map(a=>(
                 <div key={a.id} onClick={()=>{setSelectedApproval(a.id);setCurrentPage('approvals');}} style={{ padding:'10px 12px',background:'#FAFAF8',borderRadius:6,cursor:'pointer',borderLeft:`3px solid ${a.priority==='Urgent'?COLORS.red:a.priority==='High'?COLORS.orange:COLORS.accent}` }}
@@ -1251,14 +1461,14 @@ export default function BergApp() {
 
         <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:16 }}>
           <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20 }}>
-            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>Projects at Risk</h3>
+            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>{tr('Projects at Risk')}</h3>
             <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12 }}>
               <thead>
                 <tr style={{ borderBottom:`1px solid ${COLORS.border}` }}>
-                  <th style={{ textAlign:'left',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>Project</th>
-                  <th style={{ textAlign:'right',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>Variance</th>
-                  <th style={{ textAlign:'center',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>Risk</th>
-                  <th style={{ textAlign:'center',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>Progress</th>
+                  <th style={{ textAlign:'left',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>{tr('Project')}</th>
+                  <th style={{ textAlign:'right',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>{tr('Variance')}</th>
+                  <th style={{ textAlign:'center',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>{tr('Risk')}</th>
+                  <th style={{ textAlign:'center',padding:'8px 6px',fontWeight:600,color:COLORS.textSecondary }}>{tr('Progress')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -1270,7 +1480,7 @@ export default function BergApp() {
                       onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
                       <td style={{ padding:'8px 6px' }}>
                         <div style={{ fontWeight:500 }}>{p.code}</div>
-                        <div style={{ color:COLORS.textMuted,fontSize:11 }}>{p.name.split('–')[0].trim()}</div>
+                        <div style={{ color:COLORS.textMuted,fontSize:11 }}>{tr(p.name).split('–')[0].trim()}</div>
                       </td>
                       <td style={{ textAlign:'right',padding:'8px 6px',color: variance>0?COLORS.red:COLORS.green,fontWeight:500 }}>{fmt(variance)}</td>
                       <td style={{ textAlign:'center',padding:'8px 6px' }}><StatusBadge status={p.risk} size="xs" /></td>
@@ -1283,7 +1493,7 @@ export default function BergApp() {
           </div>
 
           <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20 }}>
-            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>Material Alerts</h3>
+            <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>{tr('Material Alerts')}</h3>
             <div style={{ display:'flex',flexDirection:'column',gap:8 }}>
               {pendingMR.map(mr=>(
                 <div key={mr.id} style={{ padding:'10px 12px',background:'#FAFAF8',borderRadius:6,display:'flex',justifyContent:'space-between',alignItems:'center' }}>
@@ -1298,24 +1508,24 @@ export default function BergApp() {
                 </div>
               ))}
               <div style={{ padding:'10px 12px',background:COLORS.redLight,borderRadius:6 }}>
-                <div style={{ fontSize:12,fontWeight:600,color:COLORS.red }}>Low Stock Alert</div>
-                <div style={{ fontSize:11,color:COLORS.textSecondary,marginTop:2 }}>5 items below threshold: Interior Paint, Primer, Switch Sets, Glass Partition, Mineral Wool</div>
+                <div style={{ fontSize:12,fontWeight:600,color:COLORS.red }}>{tr('Low Stock Alert')}</div>
+                <div style={{ fontSize:11,color:COLORS.textSecondary,marginTop:2 }}>5 նյութ շեմից ցածր են. {tr('Interior Paint White 15L')}, {tr('Primer Deep Penetration 10L')}, անջատիչների հավաքածուներ, ապակե միջնորմ, {tr('Mineral Wool 50mm')}</div>
               </div>
             </div>
           </div>
         </div>
 
         <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20,marginTop:16 }}>
-          <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>Recent Field Activity</h3>
+          <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px',color:COLORS.text }}>{tr('Recent Field Activity')}</h3>
           <div style={{ display:'flex',flexDirection:'column',gap:6 }}>
             {weeklyReports.slice(0,5).map(wr=>(
               <div key={wr.id} style={{ display:'flex',alignItems:'center',gap:12,padding:'8px 0',borderBottom:`1px solid ${COLORS.borderLight}`,fontSize:12 }}>
                 <div style={{ width:6,height:6,borderRadius:3,background: wr.blockerFlag?COLORS.red:COLORS.green,flexShrink:0 }} />
                 <span style={{ fontWeight:500,minWidth:70 }}>{wr.week}</span>
                 <span style={{ color:COLORS.textSecondary }}>{getProject(wr.projectId)?.code}</span>
-                <span style={{ flex:1 }}>{getNode(wr.projectId,wr.nodeId)?.name||'General'} — {wr.summary.slice(0,60)}...</span>
+                <span style={{ flex:1 }}>{getNode(wr.projectId,wr.nodeId)?.name||'General'} — {tr(wr.summary).slice(0,60)}...</span>
                 <span style={{ display:'flex',alignItems:'center',gap:4,color:COLORS.textMuted }}><Camera size={12}/>{wr.photoCount}</span>
-                {wr.blockerFlag && <span style={{ color:COLORS.red,fontWeight:600,fontSize:10 }}>BLOCKER</span>}
+                {wr.blockerFlag && <span style={{ color:COLORS.red,fontWeight:600,fontSize:10 }}>{tr('BLOCKER')}</span>}
               </div>
             ))}
           </div>
@@ -1340,18 +1550,18 @@ export default function BergApp() {
       <div>
         <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:20 }}>
           <div>
-            <h1 style={{ fontSize:22,fontWeight:700,color:COLORS.text,margin:0 }}>Projects</h1>
-            <p style={{ fontSize:13,color:COLORS.textSecondary,margin:'4px 0 0' }}>{projects.length} active projects</p>
+            <h1 style={{ fontSize:22,fontWeight:700,color:COLORS.text,margin:0 }}>{tr('Projects')}</h1>
+            <p style={{ fontSize:13,color:COLORS.textSecondary,margin:'4px 0 0' }}>{projects.length} ակտիվ նախագիծ</p>
           </div>
           <button style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:13,fontWeight:600,cursor:'pointer',display:'flex',alignItems:'center',gap:6 }}>
-            <Plus size={14}/>New Project
+            <Plus size={14}/>{tr('New Project')}
           </button>
         </div>
 
         <div style={{ display:'flex',gap:10,marginBottom:16 }}>
           <div style={{ position:'relative',flex:1 }}>
             <Search size={14} style={{ position:'absolute',left:10,top:9,color:COLORS.textMuted }}/>
-            <input placeholder="Search projects..." value={filter} onChange={e=>setFilter(e.target.value)}
+            <input placeholder={tr('Search projects...')} value={filter} onChange={e=>setFilter(e.target.value)}
               style={{ width:'100%',padding:'8px 12px 8px 30px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:13,outline:'none',background:'white',boxSizing:'border-box' }}/>
           </div>
           <select value={stageFilter} onChange={e=>setStageFilter(e.target.value)}
@@ -1407,7 +1617,7 @@ export default function BergApp() {
   // ============================================================
   const ProjectWorkspacePage = () => {
     const project = getProject(selectedProject);
-    if(!project) return <div style={{ padding:40,textAlign:'center',color:COLORS.textMuted }}>Select a project</div>;
+    if(!project) return <div style={{ padding:40,textAlign:'center',color:COLORS.textMuted }}>{tr('Select a project')}</div>;
 
     const nodes = projectNodes[project.id] || [];
     const variance = project.actual - (project.baseline * project.completion / 100);
@@ -1423,24 +1633,24 @@ export default function BergApp() {
         <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20,flexWrap:'wrap',gap:12 }}>
           <div>
             <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:4 }}>
-              <span style={{ fontSize:12,color:COLORS.textMuted,cursor:'pointer' }} onClick={()=>setCurrentPage('projects')}>Projects</span>
+              <span style={{ fontSize:12,color:COLORS.textMuted,cursor:'pointer' }} onClick={()=>setCurrentPage('projects')}>{tr('Projects')}</span>
               <ChevronRight size={12} style={{ color:COLORS.textMuted }}/>
               <span style={{ fontSize:12,color:COLORS.accent,fontWeight:600 }}>{project.code}</span>
             </div>
-            <h1 style={{ fontSize:20,fontWeight:700,color:COLORS.text,margin:0 }}>{project.name}</h1>
+            <h1 style={{ fontSize:20,fontWeight:700,color:COLORS.text,margin:0 }}>{tr(project.name)}</h1>
             <div style={{ display:'flex',gap:16,marginTop:6,fontSize:12,color:COLORS.textSecondary,flexWrap:'wrap' }}>
               <span>{getClient(project.clientId).name}</span>
-              <span>PM: {getUser(project.pmId).name}</span>
-              <span>Super: {getUser(project.superintendentId).name}</span>
+              <span>{tr('PM')}: {getUser(project.pmId).name}</span>
+              <span>{tr('Super')}: {getUser(project.superintendentId).name}</span>
               <StatusBadge status={project.stage} size="xs"/>
             </div>
           </div>
           <div style={{ display:'flex',gap:8 }}>
             <button onClick={()=>showToast('Opening Bitrix workspace...')} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',gap:6,fontWeight:500 }}>
-              <ExternalLink size={13}/>Open Bitrix Workspace
+              <ExternalLink size={13}/>{tr('Open Bitrix Workspace')}
             </button>
             <button onClick={()=>showToast('Opening shared files...')} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',gap:6,fontWeight:500 }}>
-              <ExternalLink size={13}/>Shared Files
+              <ExternalLink size={13}/>{tr('Shared Files')}
             </button>
           </div>
         </div>
@@ -1470,25 +1680,25 @@ export default function BergApp() {
         {selectedProjectTab === 'overview' && (
           <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:16 }}>
             <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20 }}>
-              <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px' }}>Project Details</h3>
+              <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px' }}>{tr('Project Details')}</h3>
               <div style={{ fontSize:13,display:'flex',flexDirection:'column',gap:8 }}>
                 {[['Code',project.code],['Client',getClient(project.clientId).name],['Type',project.type],['Stage',project.stage],['PM',getUser(project.pmId).name],['Superintendent',getUser(project.superintendentId).name],['Last Update',project.lastUpdate]].map(([k,v])=>(
                   <div key={k} style={{ display:'flex',justifyContent:'space-between' }}>
-                    <span style={{ color:COLORS.textSecondary }}>{k}</span>
-                    <span style={{ fontWeight:500 }}>{v}</span>
+                    <span style={{ color:COLORS.textSecondary }}>{tr(k)}</span>
+                    <span style={{ fontWeight:500 }}>{tr(v)}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20 }}>
-              <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px' }}>Recent Activity</h3>
+              <h3 style={{ fontSize:14,fontWeight:600,margin:'0 0 12px' }}>{tr('Recent Activity')}</h3>
               {weeklyReports.filter(r=>r.projectId===project.id).slice(0,4).map(wr=>(
                 <div key={wr.id} style={{ padding:'8px 0',borderBottom:`1px solid ${COLORS.borderLight}`,fontSize:12 }}>
                   <div style={{ display:'flex',justifyContent:'space-between',marginBottom:2 }}>
                     <span style={{ fontWeight:500 }}>{getNode(project.id,wr.nodeId)?.name||'General'}</span>
                     <span style={{ color:COLORS.textMuted }}>{wr.submittedDate}</span>
                   </div>
-                  <div style={{ color:COLORS.textSecondary }}>{wr.summary}</div>
+                  <div style={{ color:COLORS.textSecondary }}>{tr(wr.summary)}</div>
                 </div>
               ))}
             </div>
@@ -1498,7 +1708,7 @@ export default function BergApp() {
         {selectedProjectTab === 'structure' && nodes.length > 0 && (
           <div style={{ display:'grid',gridTemplateColumns:'280px 1fr 280px',gap:16,minHeight:400 }}>
             <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:12 }}>
-              <div style={{ fontSize:12,fontWeight:600,color:COLORS.textSecondary,marginBottom:10,padding:'0 8px' }}>PROJECT HIERARCHY</div>
+              <div style={{ fontSize:12,fontWeight:600,color:COLORS.textSecondary,marginBottom:10,padding:'0 8px' }}>{tr('PROJECT HIERARCHY')}</div>
               <TreeView nodes={nodes} selectedId={selectedNode} onSelect={setSelectedNode} projectId={project.id}/>
             </div>
             <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:20 }}>
@@ -1510,49 +1720,49 @@ export default function BergApp() {
                   <div>
                     <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:16 }}>
                       <div>
-                        <h3 style={{ fontSize:16,fontWeight:600,margin:0 }}>{node.name}</h3>
-                        <div style={{ fontSize:12,color:COLORS.textSecondary,marginTop:4 }}>Code: {node.code} · Type: {node.type} · Responsible: {getUser(node.responsible).name}</div>
+                        <h3 style={{ fontSize:16,fontWeight:600,margin:0 }}>{tr(node.name)}</h3>
+                        <div style={{ fontSize:12,color:COLORS.textSecondary,marginTop:4 }}>{tr('Code')}: {node.code} · {tr('Type')}: {tr(node.type)} · {tr('Responsible')}: {getUser(node.responsible).name}</div>
                       </div>
                       <StatusBadge status="In Progress"/>
                     </div>
                     <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:20 }}>
                       <div style={{ padding:12,background:'#FAFAF8',borderRadius:6 }}>
-                        <div style={{ fontSize:11,color:COLORS.textSecondary }}>Baseline</div>
+                        <div style={{ fontSize:11,color:COLORS.textSecondary }}>{tr('Baseline')}</div>
                         <div style={{ fontSize:16,fontWeight:700 }}>{fmt(node.baseline)}</div>
                       </div>
                       <div style={{ padding:12,background:'#FAFAF8',borderRadius:6 }}>
-                        <div style={{ fontSize:11,color:COLORS.textSecondary }}>Actual</div>
+                        <div style={{ fontSize:11,color:COLORS.textSecondary }}>{tr('Actual')}</div>
                         <div style={{ fontSize:16,fontWeight:700 }}>{fmt(node.actual)}</div>
                       </div>
                       <div style={{ padding:12,background: nVar>0?COLORS.redLight:COLORS.greenLight,borderRadius:6 }}>
-                        <div style={{ fontSize:11,color:COLORS.textSecondary }}>Variance</div>
+                        <div style={{ fontSize:11,color:COLORS.textSecondary }}>{tr('Variance')}</div>
                         <div style={{ fontSize:16,fontWeight:700,color: nVar>0?COLORS.red:COLORS.green }}>{fmt(nVar)}</div>
                       </div>
                     </div>
                     <ProgressBar value={node.progress} height={8}/>
-                    <div style={{ fontSize:12,color:COLORS.textSecondary,marginTop:6 }}>Progress: {node.progress}%</div>
+                    <div style={{ fontSize:12,color:COLORS.textSecondary,marginTop:6 }}>{tr('Progress')}: {node.progress}%</div>
                     <div style={{ display:'flex',gap:8,marginTop:16,flexWrap:'wrap' }}>
-                      <button onClick={()=>showToast('Opening estimate for node...')} style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',fontWeight:500 }}>Open Estimate</button>
-                      <button onClick={()=>showToast('Creating material request...')} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',fontWeight:500 }}>Create Material Request</button>
-                      <button style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',fontWeight:500 }}>Add Child Node</button>
+                      <button onClick={()=>showToast('Opening estimate for node...')} style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',fontWeight:500 }}>{tr('Open Estimate')}</button>
+                      <button onClick={()=>showToast('Creating material request...')} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',fontWeight:500 }}>{tr('Create Material Request')}</button>
+                      <button style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'7px 14px',fontSize:12,cursor:'pointer',fontWeight:500 }}>{tr('Add Child Node')}</button>
                     </div>
                   </div>
                 );
               })() : (
                 <div style={{ display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:COLORS.textMuted,fontSize:13 }}>
-                  Select a node from the hierarchy
+                  {tr('Select a node from the hierarchy')}
                 </div>
               )}
             </div>
             <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:16 }}>
-              <div style={{ fontSize:12,fontWeight:600,color:COLORS.textSecondary,marginBottom:12 }}>NODE SUMMARY</div>
+              <div style={{ fontSize:12,fontWeight:600,color:COLORS.textSecondary,marginBottom:12 }}>{tr('NODE SUMMARY')}</div>
               {selectedNode ? (() => {
                 const node = nodes.find(n=>n.id===selectedNode);
                 const nodeMR = materialRequests.filter(r=>r.projectId===project.id && r.nodeId===selectedNode);
                 const nodeWR = weeklyReports.filter(r=>r.projectId===project.id && r.nodeId===selectedNode);
                 return (
                   <div style={{ fontSize:12 }}>
-                    <div style={{ fontWeight:600,marginBottom:8 }}>Materials</div>
+                    <div style={{ fontWeight:600,marginBottom:8 }}>{tr('Materials')}</div>
                     <div style={{ color:COLORS.textSecondary,marginBottom:12 }}>{nodeMR.length} request(s)</div>
                     {nodeMR.slice(0,2).map(mr=>(
                       <div key={mr.id} style={{ padding:'6px 0',borderBottom:`1px solid ${COLORS.borderLight}` }}>
@@ -1562,14 +1772,14 @@ export default function BergApp() {
                         </div>
                       </div>
                     ))}
-                    <div style={{ fontWeight:600,marginTop:16,marginBottom:8 }}>Weekly Reports</div>
+                    <div style={{ fontWeight:600,marginTop:16,marginBottom:8 }}>{tr('Weekly Reports')}</div>
                     {nodeWR.slice(0,2).map(wr=>(
                       <div key={wr.id} style={{ padding:'6px 0',borderBottom:`1px solid ${COLORS.borderLight}` }}>
                         <div style={{ fontWeight:500 }}>{wr.week}</div>
-                        <div style={{ color:COLORS.textSecondary,fontSize:11 }}>{wr.summary.slice(0,50)}...</div>
+                        <div style={{ color:COLORS.textSecondary,fontSize:11 }}>{tr(wr.summary).slice(0,50)}...</div>
                       </div>
                     ))}
-                    <div style={{ fontWeight:600,marginTop:16,marginBottom:8 }}>Deliveries</div>
+                    <div style={{ fontWeight:600,marginTop:16,marginBottom:8 }}>{tr('Deliveries')}</div>
                     {deliveries.filter(d=>d.projectId===project.id && d.nodeId===selectedNode).slice(0,2).map(d=>(
                       <div key={d.id} style={{ padding:'6px 0',borderBottom:`1px solid ${COLORS.borderLight}` }}>
                         <div style={{ display:'flex',justifyContent:'space-between' }}>
@@ -1580,7 +1790,7 @@ export default function BergApp() {
                     ))}
                   </div>
                 );
-              })() : <div style={{ color:COLORS.textMuted,fontSize:12 }}>Select a node</div>}
+              })() : <div style={{ color:COLORS.textMuted,fontSize:12 }}>{tr('Select a node')}</div>}
             </div>
           </div>
         )}
@@ -5320,7 +5530,7 @@ export default function BergApp() {
                 onMouseEnter={e=>{ if(!isActive) e.currentTarget.style.background=COLORS.sidebarHover; e.currentTarget.style.color='white'; }}
                 onMouseLeave={e=>{ if(!isActive) e.currentTarget.style.background='transparent'; e.currentTarget.style.color=isActive?'white':'rgba(255,255,255,0.6)'; }}>
                 <item.icon size={18} style={{ flexShrink:0 }}/>
-                {!sidebarCollapsed && <span>{item.label}</span>}
+                {!sidebarCollapsed && <span>{tr(item.label)}</span>}
                 {item.id==='approvals'&&pendingApprovals>0&&!sidebarCollapsed&&(
                   <span style={{ marginLeft:'auto',background:COLORS.red,color:'white',fontSize:10,fontWeight:700,borderRadius:10,padding:'1px 6px',minWidth:18,textAlign:'center' }}>{pendingApprovals}</span>
                 )}
@@ -5341,7 +5551,7 @@ export default function BergApp() {
         <div style={{ height:52,background:COLORS.topbar,borderBottom:`1px solid ${COLORS.border}`,display:'flex',alignItems:'center',padding:'0 24px',gap:16,flexShrink:0 }}>
           <div style={{ position:'relative',flex:1,maxWidth:400 }}>
             <Search size={14} style={{ position:'absolute',left:10,top:9,color:COLORS.textMuted }}/>
-            <input placeholder="Search projects, materials, requests..." value={searchQuery} onChange={e=>setSearchQuery(e.target.value)}
+            <input placeholder={tr('Search projects, materials, requests...')} value={searchQuery} onChange={e=>setSearchQuery(e.target.value)}
               style={{ width:'100%',padding:'7px 12px 7px 30px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'#FAFAF8' }}/>
           </div>
 
@@ -5350,19 +5560,19 @@ export default function BergApp() {
             <div style={{ position:'relative' }}>
               <button onClick={()=>setShowQuickCreate(!showQuickCreate)}
                 style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'6px 12px',fontSize:12,cursor:'pointer',display:'flex',alignItems:'center',gap:4,fontWeight:600 }}>
-                <Plus size={14}/>New
+                <Plus size={14}/>{tr('New')}
               </button>
               {showQuickCreate && (
                 <div style={{ position:'absolute',top:'100%',right:0,marginTop:4,background:'white',border:`1px solid ${COLORS.border}`,borderRadius:8,boxShadow:'0 8px 30px rgba(0,0,0,0.12)',padding:4,zIndex:1000,minWidth:180 }}>
                   {['New Project','Material Request','Weekly Report','Timesheet Entry','Change Order','Transfer Order'].map(item=>(
                     <div key={item} onClick={()=>{
                       if(item==='Transfer Order'){setCurrentPage('new-transfer');setShowQuickCreate(false);return;}
-                      showToast(`${item} form opened`);setShowQuickCreate(false);
+                      showToast(`${tr(item)} ձևը բացվեց`);setShowQuickCreate(false);
                     }}
                       style={{ padding:'8px 12px',fontSize:12,cursor:'pointer',borderRadius:4 }}
                       onMouseEnter={e=>e.currentTarget.style.background='#F5F5F5'}
                       onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                      {item}
+                      {tr(item)}
                     </div>
                   ))}
                 </div>
@@ -5378,13 +5588,13 @@ export default function BergApp() {
               </button>
               {showNotifications && (
                 <div style={{ position:'absolute',top:'100%',right:0,marginTop:4,background:'white',border:`1px solid ${COLORS.border}`,borderRadius:8,boxShadow:'0 8px 30px rgba(0,0,0,0.12)',padding:4,zIndex:1000,width:340 }}>
-                  <div style={{ padding:'8px 12px',fontSize:13,fontWeight:600,borderBottom:`1px solid ${COLORS.border}` }}>Notifications</div>
+                  <div style={{ padding:'8px 12px',fontSize:13,fontWeight:600,borderBottom:`1px solid ${COLORS.border}` }}>{tr('Notifications')}</div>
                   {notifications.map(n=>(
                     <div key={n.id} style={{ padding:'10px 12px',borderBottom:`1px solid ${COLORS.borderLight}`,cursor:'pointer',background:n.read?'transparent':'#FFFBEB' }}
                       onMouseEnter={e=>e.currentTarget.style.background='#F5F5F5'}
                       onMouseLeave={e=>e.currentTarget.style.background=n.read?'transparent':'#FFFBEB'}>
-                      <div style={{ fontSize:12 }}>{n.message}</div>
-                      <div style={{ fontSize:10,color:COLORS.textMuted,marginTop:4 }}>{n.time}</div>
+                      <div style={{ fontSize:12 }}>{tr(n.message)}</div>
+                      <div style={{ fontSize:10,color:COLORS.textMuted,marginTop:4 }}>{tr(n.time)}</div>
                     </div>
                   ))}
                 </div>
@@ -5405,19 +5615,19 @@ export default function BergApp() {
                 <div style={{ width:24,height:24,borderRadius:12,background:COLORS.accent,color:'white',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:600 }}>{currentUser.initials}</div>
                 <div style={{ textAlign:'left' }}>
                   <div style={{ fontSize:12,fontWeight:500,lineHeight:1.2 }}>{currentUser.name.split(' ')[0]}</div>
-                  <div style={{ fontSize:10,color:COLORS.textMuted }}>{currentRole}</div>
+                  <div style={{ fontSize:10,color:COLORS.textMuted }}>{tr(currentRole)}</div>
                 </div>
                 <ChevronDown size={12} style={{ color:COLORS.textMuted }}/>
               </button>
               {showRoleSwitcher && (
                 <div style={{ position:'absolute',top:'100%',right:0,marginTop:4,background:'white',border:`1px solid ${COLORS.border}`,borderRadius:8,boxShadow:'0 8px 30px rgba(0,0,0,0.12)',padding:4,zIndex:1000,minWidth:200 }}>
-                  <div style={{ padding:'6px 12px',fontSize:10,fontWeight:600,color:COLORS.textMuted,letterSpacing:'0.05em' }}>DEMO ROLE SWITCHER</div>
+                  <div style={{ padding:'6px 12px',fontSize:10,fontWeight:600,color:COLORS.textMuted,letterSpacing:'0.05em' }}>{tr('DEMO ROLE SWITCHER')}</div>
                   {['Director','Project Manager','Superintendent','Warehouse Manager','Cost Engineer'].map(role=>(
                     <div key={role} onClick={()=>{setCurrentRole(role);setShowRoleSwitcher(false);showToast(`Switched to ${role} view`);}}
                       style={{ padding:'8px 12px',fontSize:12,cursor:'pointer',borderRadius:4,fontWeight: currentRole===role?600:400,color: currentRole===role?COLORS.accent:COLORS.text }}
                       onMouseEnter={e=>e.currentTarget.style.background='#F5F5F5'}
                       onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
-                      {role}
+                      {tr(role)}
                     </div>
                   ))}
                 </div>
