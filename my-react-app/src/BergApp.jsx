@@ -4,7 +4,7 @@ import {
 } from "recharts";
 import { 
   Home, FolderTree, Calculator, Package, Warehouse, FileText, CheckSquare, BookOpen, Settings,
-  Search, Bell, Plus, ChevronDown, ChevronRight, ChevronLeft, ArrowRight, ExternalLink,
+  Search, Bell, Plus, ChevronDown, ChevronRight, ChevronLeft, ArrowRight, ArrowLeftRight, ExternalLink,
   AlertTriangle, Clock, Users, TrendingUp, TrendingDown, Filter, MoreVertical,
   Camera, Upload, Check, X, Edit, Trash2, Copy, Save, Send, Eye, Download,
   Building2, MapPin, Calendar, DollarSign, Layers, Truck, ClipboardList,
@@ -555,6 +555,120 @@ const areaTransfers = [
   { id:'TRF-004', date:'2025-03-09', projectId:'p2', fromNode:'n7', toNode:'n10', material:'Joint Compound 20kg', qty:2, unit:'bag', reason:'Corridor needs compound for patching', approvedBy:'u5', status:'Pending' },
 ];
 
+// ============================================================
+// INVENTORY LOCATIONS
+// ============================================================
+const inventoryLocations = [
+  { id: 'loc-wh',     code: 'WH-CENTRAL',  name: 'Central Warehouse',         type: 'warehouse',    projectId: null, areaId: null,  isActive: true },
+  { id: 'loc-p2-n3',  code: 'RIV-APT101',  name: 'Riverside / Apt 101',       type: 'project_area', projectId: 'p2', areaId: 'n3',  isActive: true },
+  { id: 'loc-p2-n7',  code: 'RIV-APT201',  name: 'Riverside / Apt 201',       type: 'project_area', projectId: 'p2', areaId: 'n7',  isActive: true },
+  { id: 'loc-p2-n8',  code: 'RIV-APT202',  name: 'Riverside / Apt 202',       type: 'project_area', projectId: 'p2', areaId: 'n8',  isActive: true },
+  { id: 'loc-p2-n9',  code: 'RIV-APT203',  name: 'Riverside / Apt 203',       type: 'project_area', projectId: 'p2', areaId: 'n9',  isActive: true },
+  { id: 'loc-p2-n10', code: 'RIV-COR-F2',  name: 'Riverside / Corridor F2',   type: 'project_area', projectId: 'p2', areaId: 'n10', isActive: true },
+  { id: 'loc-p2-n14', code: 'RIV-LOB',     name: 'Riverside / Lobby',         type: 'project_area', projectId: 'p2', areaId: 'n14', isActive: true },
+  { id: 'loc-p1-an4', code: 'AMR-OE',      name: 'Ameria / Open Office East', type: 'project_area', projectId: 'p1', areaId: 'an4', isActive: true },
+  { id: 'loc-p1-an5', code: 'AMR-OW',      name: 'Ameria / Open Office West', type: 'project_area', projectId: 'p1', areaId: 'an5', isActive: true },
+  { id: 'loc-p1-an3', code: 'AMR-REC',     name: 'Ameria / Reception',        type: 'project_area', projectId: 'p1', areaId: 'an3', isActive: true },
+];
+
+// ============================================================
+// SEED DATA: Transfer Orders
+// ============================================================
+const seedTransferOrders = [
+  {
+    id: 'to-001', transferNo: 'TRF-2025-001',
+    sourceLocationId: 'loc-wh', destinationLocationId: 'loc-p2-n7',
+    transferType: 'warehouse_to_area', status: 'Received',
+    requestedByUserId: 'u5', approvedByUserId: 'u7', pickedByUserId: 'u6', receivedByUserId: 'u5',
+    sentAt: '2025-03-07T10:00:00', receivedAt: '2025-03-07T14:30:00',
+    reason: 'Drywall phase materials for Apt 201', projectId: 'p2', notes: 'Urgent — framing crew waiting',
+    createdAt: '2025-03-06T09:00:00', updatedAt: '2025-03-07T14:30:00',
+    lines: [
+      { id:'tl-001a', materialId:'m1',  requestedQty:24, approvedQty:24, pickedQty:24, shippedQty:24, receivedQty:24, uom:'sheet', conditionNote:'Good', discrepancyNote:'' },
+      { id:'tl-001b', materialId:'m3',  requestedQty:35, approvedQty:35, pickedQty:35, shippedQty:35, receivedQty:35, uom:'lm',    conditionNote:'Good', discrepancyNote:'' },
+      { id:'tl-001c', materialId:'m4',  requestedQty:30, approvedQty:30, pickedQty:30, shippedQty:30, receivedQty:30, uom:'lm',    conditionNote:'Good', discrepancyNote:'' },
+    ]
+  },
+  {
+    id: 'to-002', transferNo: 'TRF-2025-002',
+    sourceLocationId: 'loc-wh', destinationLocationId: 'loc-p2-n8',
+    transferType: 'warehouse_to_area', status: 'In Transit',
+    requestedByUserId: 'u5', approvedByUserId: 'u7', pickedByUserId: 'u6', receivedByUserId: null,
+    sentAt: '2025-03-09T11:00:00', receivedAt: null,
+    reason: 'Tile package for Apt 202 bathroom', projectId: 'p2', notes: '',
+    createdAt: '2025-03-08T08:00:00', updatedAt: '2025-03-09T11:00:00',
+    lines: [
+      { id:'tl-002a', materialId:'m11', requestedQty:18, approvedQty:18, pickedQty:18, shippedQty:18, receivedQty:0, uom:'sqm', conditionNote:'', discrepancyNote:'' },
+      { id:'tl-002b', materialId:'m12', requestedQty:6,  approvedQty:6,  pickedQty:6,  shippedQty:6,  receivedQty:0, uom:'bag', conditionNote:'', discrepancyNote:'' },
+    ]
+  },
+  {
+    id: 'to-003', transferNo: 'TRF-2025-003',
+    sourceLocationId: 'loc-wh', destinationLocationId: 'loc-p2-n10',
+    transferType: 'warehouse_to_area', status: 'Approved',
+    requestedByUserId: 'u5', approvedByUserId: 'u7', pickedByUserId: null, receivedByUserId: null,
+    sentAt: null, receivedAt: null,
+    reason: 'Paint package for Corridor F2', projectId: 'p2', notes: 'Coordinate with painting crew',
+    createdAt: '2025-03-07T14:00:00', updatedAt: '2025-03-08T09:00:00',
+    lines: [
+      { id:'tl-003a', materialId:'m9',  requestedQty:4, approvedQty:4, pickedQty:0, shippedQty:0, receivedQty:0, uom:'can',    conditionNote:'', discrepancyNote:'' },
+      { id:'tl-003b', materialId:'m10', requestedQty:6, approvedQty:6, pickedQty:0, shippedQty:0, receivedQty:0, uom:'bucket', conditionNote:'', discrepancyNote:'' },
+    ]
+  },
+  {
+    id: 'to-004', transferNo: 'TRF-2025-004',
+    sourceLocationId: 'loc-p2-n3', destinationLocationId: 'loc-p2-n14',
+    transferType: 'area_to_area', status: 'Submitted',
+    requestedByUserId: 'u5', approvedByUserId: null, pickedByUserId: null, receivedByUserId: null,
+    sentAt: null, receivedAt: null,
+    reason: 'Surplus tile from Apt 101 needed in Lobby', projectId: 'p2', notes: '',
+    createdAt: '2025-03-09T10:00:00', updatedAt: '2025-03-09T10:00:00',
+    lines: [
+      { id:'tl-004a', materialId:'m11', requestedQty:8, approvedQty:0, pickedQty:0, shippedQty:0, receivedQty:0, uom:'sqm', conditionNote:'', discrepancyNote:'' },
+      { id:'tl-004b', materialId:'m12', requestedQty:3, approvedQty:0, pickedQty:0, shippedQty:0, receivedQty:0, uom:'bag', conditionNote:'', discrepancyNote:'' },
+    ]
+  },
+  {
+    id: 'to-005', transferNo: 'TRF-2025-005',
+    sourceLocationId: 'loc-wh', destinationLocationId: 'loc-p2-n9',
+    transferType: 'warehouse_to_area', status: 'Draft',
+    requestedByUserId: 'u5', approvedByUserId: null, pickedByUserId: null, receivedByUserId: null,
+    sentAt: null, receivedAt: null,
+    reason: 'Drywall materials for Apt 203 phase 2', projectId: 'p2', notes: 'Pending scope confirmation',
+    createdAt: '2025-03-09T16:00:00', updatedAt: '2025-03-09T16:00:00',
+    lines: [
+      { id:'tl-005a', materialId:'m1', requestedQty:30, approvedQty:0, pickedQty:0, shippedQty:0, receivedQty:0, uom:'sheet', conditionNote:'', discrepancyNote:'' },
+      { id:'tl-005b', materialId:'m3', requestedQty:40, approvedQty:0, pickedQty:0, shippedQty:0, receivedQty:0, uom:'lm',    conditionNote:'', discrepancyNote:'' },
+      { id:'tl-005c', materialId:'m7', requestedQty:5,  approvedQty:0, pickedQty:0, shippedQty:0, receivedQty:0, uom:'bag',   conditionNote:'', discrepancyNote:'' },
+    ]
+  },
+  {
+    id: 'to-006', transferNo: 'TRF-2025-006',
+    sourceLocationId: 'loc-p1-an4', destinationLocationId: 'loc-p1-an5',
+    transferType: 'area_to_area', status: 'Cancelled',
+    requestedByUserId: 'u5', approvedByUserId: 'u7', pickedByUserId: null, receivedByUserId: null,
+    sentAt: null, receivedAt: null,
+    reason: 'PVC conduit from Open Office East to West', projectId: 'p1', notes: 'Cancelled — direct delivery arranged',
+    createdAt: '2025-03-08T11:00:00', updatedAt: '2025-03-09T09:00:00',
+    lines: [
+      { id:'tl-006a', materialId:'m16', requestedQty:15, approvedQty:15, pickedQty:0, shippedQty:0, receivedQty:0, uom:'meter', conditionNote:'', discrepancyNote:'' },
+    ]
+  },
+];
+
+// ============================================================
+// SEED DATA: Inventory Movements
+// ============================================================
+const seedInventoryMovements = [
+  { id:'im-001', movementType:'reserve',   materialId:'m1',  qty:24, uom:'sheet', fromLocationId:'loc-wh',     toLocationId:null,         referenceType:'transfer_order', referenceId:'to-001', performedByUserId:'u7', timestamp:'2025-03-06T15:00:00', note:'Reserved for TRF-2025-001' },
+  { id:'im-002', movementType:'issue',     materialId:'m1',  qty:24, uom:'sheet', fromLocationId:'loc-wh',     toLocationId:'loc-p2-n7',  referenceType:'transfer_order', referenceId:'to-001', performedByUserId:'u6', timestamp:'2025-03-07T10:00:00', note:'Issued for TRF-2025-001' },
+  { id:'im-003', movementType:'receipt',   materialId:'m1',  qty:24, uom:'sheet', fromLocationId:'loc-wh',     toLocationId:'loc-p2-n7',  referenceType:'transfer_order', referenceId:'to-001', performedByUserId:'u5', timestamp:'2025-03-07T14:30:00', note:'Received at Apt 201' },
+  { id:'im-004', movementType:'reserve',   materialId:'m11', qty:18, uom:'sqm',   fromLocationId:'loc-wh',     toLocationId:null,         referenceType:'transfer_order', referenceId:'to-002', performedByUserId:'u7', timestamp:'2025-03-08T09:00:00', note:'Reserved for TRF-2025-002' },
+  { id:'im-005', movementType:'issue',     materialId:'m11', qty:18, uom:'sqm',   fromLocationId:'loc-wh',     toLocationId:'loc-p2-n8',  referenceType:'transfer_order', referenceId:'to-002', performedByUserId:'u6', timestamp:'2025-03-09T11:00:00', note:'Issued for TRF-2025-002' },
+  { id:'im-006', movementType:'reserve',   materialId:'m9',  qty:4,  uom:'can',   fromLocationId:'loc-wh',     toLocationId:null,         referenceType:'transfer_order', referenceId:'to-003', performedByUserId:'u7', timestamp:'2025-03-08T09:00:00', note:'Reserved for TRF-2025-003' },
+  { id:'im-007', movementType:'unreserve', materialId:'m16', qty:15, uom:'meter', fromLocationId:'loc-p1-an4', toLocationId:null,         referenceType:'transfer_order', referenceId:'to-006', performedByUserId:'u7', timestamp:'2025-03-09T09:00:00', note:'Cancelled — reservation released' },
+];
+
 const movementLog = [
   { id:'MOV-001', date:'2025-03-07', type:'Supplier → Warehouse', material:'Gypsum Board 12.5mm', qty:40, from:'BuildMart LLC', to:'Central Warehouse', ref:'PO-2025-089', status:'Received' },
   { id:'MOV-002', date:'2025-03-07', type:'Warehouse → Project', material:'Gypsum Board 12.5mm', qty:24, from:'Central Warehouse', to:'BRG-24021 / Apt 201', ref:'MR-24101', status:'Delivered' },
@@ -747,6 +861,7 @@ const getClient = (id) => clients.find(c=>c.id===id) || { name: '—' };
 const getProject = (id) => projects.find(p=>p.id===id) || null;
 const getMaterial = (id) => materials.find(m=>m.id===id) || { name: '—' };
 const getNode = (projectId, nodeId) => (projectNodes[projectId]||[]).find(n=>n.id===nodeId) || null;
+const getLocation = (id) => inventoryLocations.find(l => l.id === id) || { id, name: '—', code: '—', type: 'unknown' };
 
 // ============================================================
 // STYLES
@@ -802,7 +917,12 @@ function StatusBadge({ status, size = 'sm' }) {
     'Pending Receipt': { bg: '#E0E7FF', color: '#3730A3' },
     'Urgent': { bg: '#FEE2E2', color: '#991B1B' },
     'Normal': { bg: '#F3F4F6', color: '#6B7280' },
-    'In Progress': { bg: '#DBEAFE', color: '#1D4ED8' },
+    'In Progress':         { bg: '#DBEAFE', color: '#1D4ED8' },
+    'In Transit':          { bg: '#BFDBFE', color: '#1E40AF' },
+    'Picked':              { bg: '#E0E7FF', color: '#3730A3' },
+    'Partially Received':  { bg: '#FEF3C7', color: '#92400E' },
+    'Received':            { bg: '#D1FAE5', color: '#065F46' },
+    'Cancelled':           { bg: '#F3F4F6', color: '#6B7280' },
   };
   const s = map[status] || { bg: '#F3F4F6', color: '#6B7280' };
   return (
@@ -910,10 +1030,139 @@ export default function BergApp() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedMR, setSelectedMR] = useState(null);
   const [selectedDelivery, setSelectedDelivery] = useState(null);
+  const [transferOrders, setTransferOrders] = useState(seedTransferOrders);
+  const [inventoryMovements, setInventoryMovements] = useState(seedInventoryMovements);
+  const [selectedTransferId, setSelectedTransferId] = useState(null);
 
   const showToast = (msg) => {
     setToast({ visible:true, message:msg });
     setTimeout(()=>setToast({ visible:false, message:'' }), 3000);
+  };
+
+  // ============================================================
+  // STOCK LOGIC
+  // ============================================================
+  const getBalanceAtLocation = (locationId, materialId) => {
+    const loc = inventoryLocations.find(l => l.id === locationId);
+    if (!loc) return { onHand:0, reserved:0, available:0 };
+    if (loc.type === 'warehouse') {
+      const s = warehouseStock.find(s => s.materialId === materialId);
+      if (!s) return { onHand:0, reserved:0, available:0 };
+      return { onHand:s.onHand, reserved:s.reserved, available:s.available };
+    }
+    if (loc.type === 'project_area') {
+      const items = projectStock.filter(s => s.materialId === materialId && s.projectId === loc.projectId && s.areaId === loc.areaId);
+      const qty = items.reduce((sum,s) => sum + (s.status==='available' ? s.qty : 0), 0);
+      return { onHand:qty, reserved:0, available:qty };
+    }
+    return { onHand:0, reserved:0, available:0 };
+  };
+
+  const reserveStock = (locationId, materialId, qty, transferOrderId, userId) => {
+    setInventoryMovements(prev => [...prev, {
+      id:`im-${Date.now()}`, movementType:'reserve', materialId, qty,
+      uom: materials.find(m=>m.id===materialId)?.unit||'',
+      fromLocationId:locationId, toLocationId:null,
+      referenceType:'transfer_order', referenceId:transferOrderId,
+      performedByUserId:userId, timestamp:new Date().toISOString(),
+      note:`Reserved for ${transferOrderId}`
+    }]);
+  };
+
+  const cancelReservation = (locationId, materialId, qty, transferOrderId, userId) => {
+    setInventoryMovements(prev => [...prev, {
+      id:`im-${Date.now()}`, movementType:'unreserve', materialId, qty,
+      uom: materials.find(m=>m.id===materialId)?.unit||'',
+      fromLocationId:locationId, toLocationId:null,
+      referenceType:'transfer_order', referenceId:transferOrderId,
+      performedByUserId:userId, timestamp:new Date().toISOString(),
+      note:`Reservation released — ${transferOrderId}`
+    }]);
+  };
+
+  const issueStock = (fromLocationId, toLocationId, materialId, qty, transferOrderId, userId) => {
+    setInventoryMovements(prev => [...prev, {
+      id:`im-${Date.now()}`, movementType:'issue', materialId, qty,
+      uom: materials.find(m=>m.id===materialId)?.unit||'',
+      fromLocationId, toLocationId,
+      referenceType:'transfer_order', referenceId:transferOrderId,
+      performedByUserId:userId, timestamp:new Date().toISOString(),
+      note:`Issued for ${transferOrderId}`
+    }]);
+  };
+
+  const receiveStock = (toLocationId, materialId, qty, transferOrderId, userId) => {
+    setInventoryMovements(prev => [...prev, {
+      id:`im-${Date.now()}`, movementType:'receipt', materialId, qty,
+      uom: materials.find(m=>m.id===materialId)?.unit||'',
+      fromLocationId:null, toLocationId,
+      referenceType:'transfer_order', referenceId:transferOrderId,
+      performedByUserId:userId, timestamp:new Date().toISOString(),
+      note:`Received at destination — ${transferOrderId}`
+    }]);
+  };
+
+  // ============================================================
+  // TRANSFER LIFECYCLE
+  // ============================================================
+  const submitTransfer = (transferId) => {
+    setTransferOrders(prev => prev.map(t =>
+      t.id===transferId ? {...t, status:'Submitted', updatedAt:new Date().toISOString()} : t
+    ));
+    showToast('Transfer submitted for approval');
+  };
+
+  const approveTransfer = (transferId) => {
+    setTransferOrders(prev => prev.map(t => {
+      if (t.id!==transferId) return t;
+      t.lines.forEach(line => reserveStock(t.sourceLocationId, line.materialId, line.requestedQty, transferId, currentUser.id));
+      return {...t, status:'Approved', approvedByUserId:currentUser.id, lines:t.lines.map(l=>({...l,approvedQty:l.requestedQty})), updatedAt:new Date().toISOString()};
+    }));
+    showToast('Transfer approved — stock reserved');
+  };
+
+  const pickTransfer = (transferId) => {
+    setTransferOrders(prev => prev.map(t =>
+      t.id===transferId ? {...t, status:'Picked', pickedByUserId:currentUser.id, lines:t.lines.map(l=>({...l,pickedQty:l.approvedQty})), updatedAt:new Date().toISOString()} : t
+    ));
+    showToast('Transfer marked as picked');
+  };
+
+  const sendTransfer = (transferId) => {
+    setTransferOrders(prev => prev.map(t => {
+      if (t.id!==transferId) return t;
+      t.lines.forEach(line => issueStock(t.sourceLocationId, t.destinationLocationId, line.materialId, line.pickedQty, transferId, currentUser.id));
+      return {...t, status:'In Transit', sentAt:new Date().toISOString(), lines:t.lines.map(l=>({...l,shippedQty:l.pickedQty})), updatedAt:new Date().toISOString()};
+    }));
+    showToast('Transfer marked as In Transit');
+  };
+
+  const receiveTransfer = (transferId, receiptLines) => {
+    setTransferOrders(prev => prev.map(t => {
+      if (t.id!==transferId) return t;
+      const updatedLines = t.lines.map(line => {
+        const receipt = receiptLines.find(r => r.lineId===line.id);
+        if (!receipt) return line;
+        receiveStock(t.destinationLocationId, line.materialId, receipt.receivedQty, transferId, currentUser.id);
+        return {...line, receivedQty:receipt.receivedQty, conditionNote:receipt.conditionNote, discrepancyNote:receipt.discrepancyNote};
+      });
+      const allOk = updatedLines.every(l => l.receivedQty >= l.shippedQty);
+      const hasDisc = updatedLines.some(l => l.discrepancyNote);
+      const someRec = updatedLines.some(l => l.receivedQty > 0);
+      return {...t, status:(allOk&&!hasDisc)?'Received':someRec?'Partially Received':t.status, receivedByUserId:currentUser.id, receivedAt:new Date().toISOString(), lines:updatedLines, updatedAt:new Date().toISOString()};
+    }));
+    showToast('Receipt recorded');
+  };
+
+  const cancelTransfer = (transferId) => {
+    setTransferOrders(prev => prev.map(t => {
+      if (t.id!==transferId) return t;
+      if (['Approved','Picked'].includes(t.status)) {
+        t.lines.forEach(line => cancelReservation(t.sourceLocationId, line.materialId, line.approvedQty, transferId, currentUser.id));
+      }
+      return {...t, status:'Cancelled', updatedAt:new Date().toISOString()};
+    }));
+    showToast('Transfer cancelled');
   };
 
   const openProject = (projectId) => {
@@ -931,6 +1180,7 @@ export default function BergApp() {
     { id: 'estimates', label: 'Estimates', icon: Calculator },
     { id: 'materials', label: 'Materials', icon: Package },
     { id: 'warehouse', label: 'Warehouse', icon: Warehouse },
+    { id: 'transfers', label: 'Transfers', icon: ArrowLeftRight },
     { id: 'field-reports', label: 'Field Reports', icon: ClipboardList },
     { id: 'timesheets', label: 'Timesheets', icon: Clock },
     { id: 'approvals', label: 'Approvals', icon: CheckSquare },
@@ -2459,7 +2709,7 @@ export default function BergApp() {
           <KpiCard label="Pending Issues" value={pendingFulfill.length} icon={Truck} color={COLORS.orange}/>
           <KpiCard label="In Transit" value={1} icon={ArrowRight} color={COLORS.accent} sub="DL-24044"/>
           <KpiCard label="Site Items" value={projStockFiltered.length} icon={MapPin} color={COLORS.green}/>
-          <KpiCard label="Transfers" value={areaTransfers.filter(t=>t.status==='Pending').length} icon={RefreshCw} color={COLORS.yellow} sub="pending"/>
+          <KpiCard label="Transfers" value={transferOrders.filter(t=>t.status==='In Transit').length} icon={ArrowLeftRight} color={COLORS.accent} sub="in transit" onClick={()=>setCurrentPage('transfers')}/>
         </div>
 
         {/* Perspective Tabs */}
@@ -2467,7 +2717,7 @@ export default function BergApp() {
           {[
             {id:'central-stock',label:'Central Warehouse'},
             {id:'project-stock',label:'Project Area Stock'},
-            {id:'transfers',label:`Transfers (${areaTransfers.length})`},
+            {id:'transfers',label:`Transfers (${transferOrders.length})`},
             {id:'movements',label:'Movement Log'},
           ].map(t=>(
             <button key={t.id} onClick={()=>setWhTab(t.id)}
@@ -2562,6 +2812,15 @@ export default function BergApp() {
                 </table>
               </div>
             </div>
+          {transferOrders.filter(t=>t.status==='In Transit').length > 0 && (
+            <div style={{ padding:'10px 16px',background:COLORS.accentLight,border:`1px solid ${COLORS.accent}30`,borderRadius:8,marginTop:12,display:'flex',alignItems:'center',gap:10 }}>
+              <Truck size={16} style={{ color:COLORS.accent,flexShrink:0 }}/>
+              <div style={{ fontSize:12 }}>
+                <b style={{ color:COLORS.accent }}>{transferOrders.filter(t=>t.status==='In Transit').length} transfer(s) in transit</b> — materials currently moving to site areas.
+                <span onClick={()=>setCurrentPage('transfers')} style={{ color:COLORS.accent,cursor:'pointer',marginLeft:6,fontWeight:500 }}>View →</span>
+              </div>
+            </div>
+          )}
           </div>
         )}
 
@@ -2573,7 +2832,7 @@ export default function BergApp() {
                 style={{ padding:'8px 12px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
                 {projects.map(p=><option key={p.id} value={p.id}>{p.code} — {p.name.split('–')[0].trim()}</option>)}
               </select>
-              <button onClick={()=>{setTransferForm(true);showToast('Select source and destination areas');}} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5 }}>
+              <button onClick={()=>setCurrentPage('new-transfer')} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:5 }}>
                 <RefreshCw size={13}/>New Transfer
               </button>
             </div>
@@ -2637,8 +2896,12 @@ export default function BergApp() {
         {whTab === 'transfers' && (
           <div>
             <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12 }}>
-              <div style={{ fontSize:13,color:COLORS.textSecondary }}>Area-to-area material transfers</div>
-              <button onClick={()=>showToast('New transfer form opened')} style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5 }}>
+              <div style={{ fontSize:13,color:COLORS.textSecondary }}>
+                Recent transfer orders.
+                <span onClick={()=>setCurrentPage('transfers')} style={{ color:COLORS.accent,cursor:'pointer',marginLeft:6,fontWeight:500 }}>Open full Transfers page →</span>
+              </div>
+              <button onClick={()=>setCurrentPage('new-transfer')}
+                style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 14px',fontSize:12,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:5 }}>
                 <Plus size={13}/>New Transfer
               </button>
             </div>
@@ -2646,30 +2909,25 @@ export default function BergApp() {
               <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12 }}>
                 <thead>
                   <tr style={{ background:'#FAFAF8' }}>
-                    {['ID','Date','Project','From','To','Material','Qty','Reason','Approved By','Status'].map(h=>(
+                    {['Transfer #','Source','Destination','Status','Lines','Created'].map(h=>(
                       <th key={h} style={{ textAlign:'left',padding:'10px 12px',fontWeight:600,color:COLORS.textSecondary,fontSize:11,borderBottom:`1px solid ${COLORS.border}` }}>{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {areaTransfers.map(t=>{
-                    const fromNode = (projectNodes[t.projectId]||[]).find(n=>n.id===t.fromNode);
-                    const toNode = (projectNodes[t.projectId]||[]).find(n=>n.id===t.toNode);
-                    return (
-                      <tr key={t.id} style={{ borderBottom:`1px solid ${COLORS.borderLight}` }}>
-                        <td style={{ padding:'10px 12px',fontWeight:600,color:COLORS.accent }}>{t.id}</td>
-                        <td style={{ padding:'10px 12px' }}>{t.date}</td>
-                        <td style={{ padding:'10px 12px' }}>{getProject(t.projectId)?.code}</td>
-                        <td style={{ padding:'10px 12px',fontWeight:500 }}>{fromNode?.name||t.fromNode}</td>
-                        <td style={{ padding:'10px 12px',fontWeight:500 }}>{toNode?.name||t.toNode}</td>
-                        <td style={{ padding:'10px 12px' }}>{t.material}</td>
-                        <td style={{ padding:'10px 12px',fontWeight:600 }}>{t.qty} {t.unit}</td>
-                        <td style={{ padding:'10px 12px',color:COLORS.textSecondary,fontSize:11,maxWidth:160,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{t.reason}</td>
-                        <td style={{ padding:'10px 12px',color:COLORS.textSecondary }}>{getUser(t.approvedBy).name.split(' ')[0]}</td>
-                        <td style={{ padding:'10px 12px' }}><StatusBadge status={t.status==='Completed'?'Fulfilled':t.status} size="xs"/></td>
-                      </tr>
-                    );
-                  })}
+                  {transferOrders.slice(-6).reverse().map(t=>(
+                    <tr key={t.id} style={{ borderBottom:`1px solid ${COLORS.borderLight}`,cursor:'pointer' }}
+                      onClick={()=>{ setSelectedTransferId(t.id); setCurrentPage('transfer-detail'); }}
+                      onMouseEnter={e=>e.currentTarget.style.background='#FAFAF8'}
+                      onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                      <td style={{ padding:'10px 12px',fontWeight:600,color:COLORS.accent }}>{t.transferNo}</td>
+                      <td style={{ padding:'10px 12px' }}>{getLocation(t.sourceLocationId).name}</td>
+                      <td style={{ padding:'10px 12px' }}>{getLocation(t.destinationLocationId).name}</td>
+                      <td style={{ padding:'10px 12px' }}><StatusBadge status={t.status} size="xs"/></td>
+                      <td style={{ padding:'10px 12px',textAlign:'center' }}>{t.lines.length}</td>
+                      <td style={{ padding:'10px 12px',color:COLORS.textMuted }}>{t.createdAt.slice(0,10)}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -2803,6 +3061,634 @@ export default function BergApp() {
                 Select an approval to review
               </div>
             )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ============================================================
+  // PAGE: Transfer List
+  // ============================================================
+  const TransferListPage = () => {
+    const [filterStatus, setFilterStatus] = useState('all');
+    const [filterType, setFilterType] = useState('all');
+    const [filterProject, setFilterProject] = useState('all');
+
+    const typeLabel = { warehouse_to_area:'WH → Area', area_to_area:'Area → Area', area_to_warehouse:'Area → WH' };
+    const statuses = ['Draft','Submitted','Approved','Picked','In Transit','Received','Partially Received','Cancelled'];
+
+    const filtered = transferOrders.filter(t => {
+      if (filterStatus!=='all' && t.status!==filterStatus) return false;
+      if (filterType!=='all' && t.transferType!==filterType) return false;
+      if (filterProject!=='all' && t.projectId!==filterProject) return false;
+      return true;
+    });
+
+    const openDetail = (id) => { setSelectedTransferId(id); setCurrentPage('transfer-detail'); };
+
+    return (
+      <div>
+        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16 }}>
+          <div>
+            <h1 style={{ fontSize:22,fontWeight:700,color:COLORS.text,margin:0 }}>Transfers</h1>
+            <p style={{ fontSize:13,color:COLORS.textSecondary,margin:'4px 0 0' }}>Material transfer orders between locations</p>
+          </div>
+          <button onClick={()=>setCurrentPage('new-transfer')}
+            style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'9px 16px',fontSize:13,cursor:'pointer',fontWeight:600,display:'flex',alignItems:'center',gap:6 }}>
+            <Plus size={14}/>New Transfer
+          </button>
+        </div>
+
+        <div style={{ display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:16 }}>
+          <KpiCard label="Total Transfers" value={transferOrders.length} icon={ArrowLeftRight} color={COLORS.accent}/>
+          <KpiCard label="In Transit" value={transferOrders.filter(t=>t.status==='In Transit').length} icon={Truck} color={COLORS.accent} sub="awaiting receipt"/>
+          <KpiCard label="Pending Approval" value={transferOrders.filter(t=>t.status==='Submitted').length} icon={Clock} color={COLORS.orange}/>
+          <KpiCard label="Completed" value={transferOrders.filter(t=>t.status==='Received').length} icon={Check} color={COLORS.green}/>
+        </div>
+
+        <div style={{ display:'flex',gap:8,marginBottom:12,flexWrap:'wrap' }}>
+          <select value={filterStatus} onChange={e=>setFilterStatus(e.target.value)}
+            style={{ padding:'7px 10px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
+            <option value="all">All Statuses</option>
+            {statuses.map(s=><option key={s} value={s}>{s}</option>)}
+          </select>
+          <select value={filterType} onChange={e=>setFilterType(e.target.value)}
+            style={{ padding:'7px 10px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
+            <option value="all">All Types</option>
+            {Object.entries(typeLabel).map(([v,l])=><option key={v} value={v}>{l}</option>)}
+          </select>
+          <select value={filterProject} onChange={e=>setFilterProject(e.target.value)}
+            style={{ padding:'7px 10px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
+            <option value="all">All Projects</option>
+            {projects.map(p=><option key={p.id} value={p.id}>{p.code}</option>)}
+          </select>
+          {(filterStatus!=='all'||filterType!=='all'||filterProject!=='all') && (
+            <button onClick={()=>{setFilterStatus('all');setFilterType('all');setFilterProject('all');}}
+              style={{ padding:'7px 12px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,cursor:'pointer',background:'white',color:COLORS.textSecondary }}>
+              Clear
+            </button>
+          )}
+        </div>
+
+        <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,overflow:'hidden' }}>
+          <div style={{ overflowX:'auto' }}>
+            <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:900 }}>
+              <thead>
+                <tr style={{ background:'#FAFAF8' }}>
+                  {['Transfer #','Source','Destination','Type','Status','Requested By','Created','Sent','Received','Lines','Actions'].map(h=>(
+                    <th key={h} style={{ textAlign:'left',padding:'10px 12px',fontWeight:600,color:COLORS.textSecondary,fontSize:11,borderBottom:`1px solid ${COLORS.border}`,whiteSpace:'nowrap' }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filtered.length===0 && (
+                  <tr><td colSpan={11} style={{ padding:32,textAlign:'center',color:COLORS.textMuted }}>No transfers match filters</td></tr>
+                )}
+                {filtered.map(t => {
+                  const srcLoc = getLocation(t.sourceLocationId);
+                  const dstLoc = getLocation(t.destinationLocationId);
+                  const reqBy  = getUser(t.requestedByUserId);
+                  return (
+                    <tr key={t.id} style={{ borderBottom:`1px solid ${COLORS.borderLight}`,cursor:'pointer' }}
+                      onMouseEnter={e=>e.currentTarget.style.background='#FAFAF8'}
+                      onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
+                      <td style={{ padding:'10px 12px' }}>
+                        <span onClick={()=>openDetail(t.id)} style={{ fontWeight:600,color:COLORS.accent,cursor:'pointer' }}>{t.transferNo}</span>
+                      </td>
+                      <td style={{ padding:'10px 12px',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{srcLoc.name}</td>
+                      <td style={{ padding:'10px 12px',maxWidth:140,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap' }}>{dstLoc.name}</td>
+                      <td style={{ padding:'10px 12px' }}>
+                        <span style={{ fontSize:10,fontWeight:600,padding:'2px 7px',borderRadius:4,background:COLORS.accentLight,color:COLORS.accent }}>{typeLabel[t.transferType]||t.transferType}</span>
+                      </td>
+                      <td style={{ padding:'10px 12px' }}><StatusBadge status={t.status} size="xs"/></td>
+                      <td style={{ padding:'10px 12px',color:COLORS.textSecondary }}>{reqBy?.name?.split(' ')[0]||'—'}</td>
+                      <td style={{ padding:'10px 12px',color:COLORS.textMuted }}>{t.createdAt.slice(0,10)}</td>
+                      <td style={{ padding:'10px 12px',color:COLORS.textMuted }}>{t.sentAt?t.sentAt.slice(0,10):'—'}</td>
+                      <td style={{ padding:'10px 12px',color:COLORS.textMuted }}>{t.receivedAt?t.receivedAt.slice(0,10):'—'}</td>
+                      <td style={{ padding:'10px 12px',textAlign:'center',fontWeight:600 }}>{t.lines.length}</td>
+                      <td style={{ padding:'10px 12px' }}>
+                        <div style={{ display:'flex',gap:4 }}>
+                          <button onClick={()=>openDetail(t.id)}
+                            style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:4,padding:'3px 8px',fontSize:10,cursor:'pointer',fontWeight:500,display:'flex',alignItems:'center',gap:3 }}>
+                            <Eye size={10}/>View
+                          </button>
+                          {t.status==='Draft'     && <button onClick={e=>{e.stopPropagation();submitTransfer(t.id);}}  style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:4,padding:'3px 8px',fontSize:10,cursor:'pointer',fontWeight:600 }}>Submit</button>}
+                          {t.status==='Submitted' && <button onClick={e=>{e.stopPropagation();approveTransfer(t.id);}} style={{ background:COLORS.green, color:'white',border:'none',borderRadius:4,padding:'3px 8px',fontSize:10,cursor:'pointer',fontWeight:600 }}>Approve</button>}
+                          {t.status==='Approved'  && <button onClick={e=>{e.stopPropagation();pickTransfer(t.id);}}    style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:4,padding:'3px 8px',fontSize:10,cursor:'pointer',fontWeight:600 }}>Pick</button>}
+                          {t.status==='Picked'    && <button onClick={e=>{e.stopPropagation();sendTransfer(t.id);}}    style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:4,padding:'3px 8px',fontSize:10,cursor:'pointer',fontWeight:600 }}>Send</button>}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ============================================================
+  // PAGE: New Transfer Wizard
+  // ============================================================
+  const NewTransferPage = () => {
+    const [step, setStep] = useState(1);
+    const [header, setHeader] = useState({
+      transferType: 'warehouse_to_area',
+      sourceLocationId: 'loc-wh',
+      destinationLocationId: 'loc-p2-n7',
+      projectId: 'p2',
+      reason: '',
+      notes: '',
+    });
+    const [lines, setLines] = useState([]);
+    const [lineMatId, setLineMatId] = useState('');
+    const [lineQty, setLineQty] = useState('');
+
+    const srcLoc = getLocation(header.sourceLocationId);
+
+    const addLine = () => {
+      if (!lineMatId || !lineQty || Number(lineQty) <= 0) { showToast('Select material and enter qty'); return; }
+      if (lines.find(l => l.materialId === lineMatId)) { showToast('Material already added'); return; }
+      const mat = materials.find(m => m.id === lineMatId);
+      setLines(prev => [...prev, { id:`nl-${Date.now()}`, materialId:lineMatId, requestedQty:Number(lineQty), approvedQty:0, pickedQty:0, shippedQty:0, receivedQty:0, uom:mat.unit, conditionNote:'', discrepancyNote:'' }]);
+      setLineMatId(''); setLineQty('');
+    };
+
+    const handleCreate = () => {
+      if (lines.length === 0) { showToast('Add at least one line'); return; }
+      if (!header.reason.trim()) { showToast('Reason is required'); return; }
+      const newId = `to-${Date.now()}`;
+      const newTRF = {
+        id: newId,
+        transferNo: `TRF-${new Date().getFullYear()}-${String(transferOrders.length + 1).padStart(3,'0')}`,
+        ...header, status: 'Draft',
+        requestedByUserId: currentUser.id,
+        approvedByUserId: null, pickedByUserId: null, receivedByUserId: null,
+        sentAt: null, receivedAt: null, lines,
+        createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+      };
+      setTransferOrders(prev => [...prev, newTRF]);
+      showToast(`${newTRF.transferNo} created as Draft`);
+      setSelectedTransferId(newId);
+      setCurrentPage('transfer-detail');
+    };
+
+    const stepDot = (n) => ({
+      width:28,height:28,borderRadius:14,display:'flex',alignItems:'center',justifyContent:'center',
+      fontSize:12,fontWeight:700,flexShrink:0,
+      background: step > n ? COLORS.green : step === n ? COLORS.accent : COLORS.border,
+      color: step >= n ? 'white' : COLORS.textMuted,
+    });
+
+    return (
+      <div style={{ maxWidth:720,margin:'0 auto' }}>
+        <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:20,cursor:'pointer',color:COLORS.textSecondary,fontSize:13 }}
+          onClick={()=>setCurrentPage('transfers')}>
+          <ChevronLeft size={16}/>Back to Transfers
+        </div>
+        <h1 style={{ fontSize:22,fontWeight:700,color:COLORS.text,margin:'0 0 20px' }}>New Transfer Order</h1>
+
+        <div style={{ display:'flex',alignItems:'center',marginBottom:24 }}>
+          {[{n:1,label:'Header'},{n:2,label:'Lines'},{n:3,label:'Review'}].map((s,i)=>(
+            <div key={s.n} style={{ display:'flex',alignItems:'center' }}>
+              <div style={{ display:'flex',alignItems:'center',gap:8 }}>
+                <div style={stepDot(s.n)}>{step > s.n ? <Check size={12}/> : s.n}</div>
+                <span style={{ fontSize:12,fontWeight:step===s.n?600:400,color:step===s.n?COLORS.text:COLORS.textMuted }}>{s.label}</span>
+              </div>
+              {i<2 && <div style={{ width:40,height:2,background:step>s.n?COLORS.green:COLORS.border,margin:'0 8px' }}/>}
+            </div>
+          ))}
+        </div>
+
+        {step === 1 && (
+          <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:24 }}>
+            <h3 style={{ fontSize:15,fontWeight:600,margin:'0 0 20px' }}>Transfer Details</h3>
+            <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:16 }}>
+              <div style={{ gridColumn:'1/-1' }}>
+                <label style={{ fontSize:12,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:6 }}>Transfer Type</label>
+                <div style={{ display:'flex',gap:8 }}>
+                  {[['warehouse_to_area','WH → Project Area'],['area_to_area','Area → Area'],['area_to_warehouse','Area → Warehouse']].map(([v,l])=>(
+                    <button key={v} onClick={()=>setHeader(h=>({...h,transferType:v}))}
+                      style={{ flex:1,padding:'9px 12px',border:`1px solid ${header.transferType===v?COLORS.accent:COLORS.border}`,borderRadius:6,fontSize:12,cursor:'pointer',fontWeight:header.transferType===v?600:400,background:header.transferType===v?COLORS.accentLight:'white',color:header.transferType===v?COLORS.accent:COLORS.text }}>
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <label style={{ fontSize:12,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:6 }}>Source Location</label>
+                <select value={header.sourceLocationId} onChange={e=>setHeader(h=>({...h,sourceLocationId:e.target.value}))}
+                  style={{ width:'100%',padding:'9px 12px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
+                  {inventoryLocations.map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize:12,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:6 }}>Destination Location</label>
+                <select value={header.destinationLocationId} onChange={e=>setHeader(h=>({...h,destinationLocationId:e.target.value}))}
+                  style={{ width:'100%',padding:'9px 12px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
+                  {inventoryLocations.filter(l=>l.id!==header.sourceLocationId).map(l=><option key={l.id} value={l.id}>{l.name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize:12,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:6 }}>Project</label>
+                <select value={header.projectId} onChange={e=>setHeader(h=>({...h,projectId:e.target.value}))}
+                  style={{ width:'100%',padding:'9px 12px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
+                  {projects.map(p=><option key={p.id} value={p.id}>{p.code} — {p.name.split('–')[0].trim()}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ fontSize:12,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:6 }}>Reason <span style={{ color:COLORS.red }}>*</span></label>
+                <input value={header.reason} onChange={e=>setHeader(h=>({...h,reason:e.target.value}))} placeholder="e.g. Phase 2 drywall materials"
+                  style={{ width:'100%',padding:'9px 12px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none' }}/>
+              </div>
+              <div style={{ gridColumn:'1/-1' }}>
+                <label style={{ fontSize:12,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:6 }}>Notes</label>
+                <textarea value={header.notes} onChange={e=>setHeader(h=>({...h,notes:e.target.value}))} rows={2} placeholder="Optional notes..."
+                  style={{ width:'100%',padding:'9px 12px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',resize:'vertical' }}/>
+              </div>
+            </div>
+            <div style={{ display:'flex',justifyContent:'flex-end',marginTop:20 }}>
+              <button onClick={()=>{ if(!header.reason.trim()){showToast('Reason is required');return;} setStep(2); }}
+                style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'10px 24px',fontSize:13,cursor:'pointer',fontWeight:600 }}>
+                Next: Add Lines
+              </button>
+            </div>
+          </div>
+        )}
+
+        {step === 2 && (
+          <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:24 }}>
+            <h3 style={{ fontSize:15,fontWeight:600,margin:'0 0 12px' }}>Transfer Lines</h3>
+            <div style={{ padding:'10px 14px',background:COLORS.accentLight,borderRadius:6,marginBottom:16,fontSize:12,color:COLORS.accent }}>
+              Source: <strong>{srcLoc.name}</strong> — select materials and quantities below.
+            </div>
+            <div style={{ display:'flex',gap:8,marginBottom:16,alignItems:'flex-end' }}>
+              <div style={{ flex:2 }}>
+                <label style={{ fontSize:11,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:4 }}>Material</label>
+                <select value={lineMatId} onChange={e=>setLineMatId(e.target.value)}
+                  style={{ width:'100%',padding:'8px 10px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none',background:'white' }}>
+                  <option value="">— Select material —</option>
+                  {materials.map(m=>{
+                    const bal = getBalanceAtLocation(header.sourceLocationId, m.id);
+                    return <option key={m.id} value={m.id}>{m.name} (avail: {bal.available} {m.unit})</option>;
+                  })}
+                </select>
+              </div>
+              <div style={{ flex:1 }}>
+                <label style={{ fontSize:11,fontWeight:500,color:COLORS.textSecondary,display:'block',marginBottom:4 }}>Qty</label>
+                <input type="number" min="1" value={lineQty} onChange={e=>setLineQty(e.target.value)}
+                  style={{ width:'100%',padding:'8px 10px',border:`1px solid ${COLORS.border}`,borderRadius:6,fontSize:12,outline:'none' }}/>
+              </div>
+              <button onClick={addLine}
+                style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:12,cursor:'pointer',fontWeight:600,whiteSpace:'nowrap' }}>
+                Add
+              </button>
+            </div>
+            {lines.length > 0 ? (
+              <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12,marginBottom:16 }}>
+                <thead>
+                  <tr style={{ background:'#FAFAF8' }}>
+                    {['Material','UOM','Qty','Available',''].map(h=>(
+                      <th key={h} style={{ textAlign:'left',padding:'8px 10px',fontWeight:600,color:COLORS.textSecondary,fontSize:11,borderBottom:`1px solid ${COLORS.border}` }}>{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {lines.map(l=>{
+                    const mat = materials.find(m=>m.id===l.materialId);
+                    const bal = getBalanceAtLocation(header.sourceLocationId, l.materialId);
+                    const over = l.requestedQty > bal.available;
+                    return (
+                      <tr key={l.id} style={{ borderBottom:`1px solid ${COLORS.borderLight}`,background:over?COLORS.redLight+'40':'transparent' }}>
+                        <td style={{ padding:'8px 10px',fontWeight:500 }}>{mat?.name}</td>
+                        <td style={{ padding:'8px 10px',color:COLORS.textMuted }}>{l.uom}</td>
+                        <td style={{ padding:'8px 10px',fontWeight:700,color:over?COLORS.red:COLORS.text }}>{l.requestedQty}</td>
+                        <td style={{ padding:'8px 10px',color:over?COLORS.red:COLORS.green,fontWeight:500 }}>{bal.available}</td>
+                        <td style={{ padding:'8px 10px' }}><button onClick={()=>setLines(prev=>prev.filter(x=>x.id!==l.id))} style={{ background:'none',border:'none',cursor:'pointer',color:COLORS.red }}><X size={14}/></button></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            ) : (
+              <div style={{ textAlign:'center',padding:'20px 0',color:COLORS.textMuted,fontSize:13 }}>No lines added yet</div>
+            )}
+            <div style={{ display:'flex',justifyContent:'space-between',marginTop:8 }}>
+              <button onClick={()=>setStep(1)} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'9px 20px',fontSize:13,cursor:'pointer',fontWeight:500 }}>Back</button>
+              <button onClick={()=>{ if(lines.length===0){showToast('Add at least one line');return;} setStep(3); }}
+                style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'9px 24px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Next: Review</button>
+            </div>
+          </div>
+        )}
+
+        {step === 3 && (
+          <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:24 }}>
+            <h3 style={{ fontSize:15,fontWeight:600,margin:'0 0 16px' }}>Review & Submit</h3>
+            <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:20 }}>
+              {[
+                ['Source', getLocation(header.sourceLocationId).name],
+                ['Destination', getLocation(header.destinationLocationId).name],
+                ['Type', {warehouse_to_area:'WH → Area',area_to_area:'Area → Area',area_to_warehouse:'Area → WH'}[header.transferType]],
+                ['Project', projects.find(p=>p.id===header.projectId)?.code||'—'],
+                ['Reason', header.reason],
+                ['Requested By', currentUser.name],
+              ].map(([k,v])=>(
+                <div key={k} style={{ padding:'10px 12px',background:'#FAFAF8',borderRadius:6 }}>
+                  <div style={{ fontSize:10,color:COLORS.textSecondary,marginBottom:2 }}>{k}</div>
+                  <div style={{ fontSize:13,fontWeight:500 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+            <h4 style={{ fontSize:13,fontWeight:600,margin:'0 0 10px',color:COLORS.textSecondary }}>Lines ({lines.length})</h4>
+            <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12,marginBottom:20 }}>
+              <thead>
+                <tr style={{ background:'#FAFAF8' }}>
+                  {['Material','UOM','Requested Qty','Available at Source'].map(h=>(
+                    <th key={h} style={{ textAlign:'left',padding:'8px 10px',fontWeight:600,color:COLORS.textSecondary,fontSize:11,borderBottom:`1px solid ${COLORS.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {lines.map(l=>{
+                  const mat = materials.find(m=>m.id===l.materialId);
+                  const bal = getBalanceAtLocation(header.sourceLocationId, l.materialId);
+                  return (
+                    <tr key={l.id} style={{ borderBottom:`1px solid ${COLORS.borderLight}` }}>
+                      <td style={{ padding:'8px 10px',fontWeight:500 }}>{mat?.name}</td>
+                      <td style={{ padding:'8px 10px',color:COLORS.textMuted }}>{l.uom}</td>
+                      <td style={{ padding:'8px 10px',fontWeight:700 }}>{l.requestedQty}</td>
+                      <td style={{ padding:'8px 10px',color:l.requestedQty>bal.available?COLORS.red:COLORS.green,fontWeight:500 }}>{bal.available}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div style={{ display:'flex',justifyContent:'space-between' }}>
+              <button onClick={()=>setStep(2)} style={{ background:'white',border:`1px solid ${COLORS.border}`,borderRadius:6,padding:'9px 20px',fontSize:13,cursor:'pointer',fontWeight:500 }}>Back</button>
+              <button onClick={handleCreate} style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'9px 24px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Create Transfer (Draft)</button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  // ============================================================
+  // PAGE: Transfer Detail
+  // ============================================================
+  const TransferDetailPage = () => {
+    const t = transferOrders.find(x => x.id === selectedTransferId);
+    const [showReceive, setShowReceive] = useState(false);
+    const [receiptLines, setReceiptLines] = useState([]);
+
+    const initReceipt = () => {
+      if (!t) return;
+      setReceiptLines(t.lines.map(l => ({ lineId:l.id, materialId:l.materialId, shippedQty:l.shippedQty, receivedQty:l.shippedQty, conditionNote:'Good', discrepancyNote:'' })));
+      setShowReceive(true);
+    };
+
+    if (!t) return (
+      <div style={{ textAlign:'center',padding:60,color:COLORS.textMuted }}>
+        <AlertTriangle size={24} style={{ marginBottom:8,display:'block',margin:'0 auto 8px' }}/>
+        <div>Transfer not found</div>
+        <button onClick={()=>setCurrentPage('transfers')} style={{ marginTop:12,background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:12,cursor:'pointer' }}>Back to Transfers</button>
+      </div>
+    );
+
+    const srcLoc = getLocation(t.sourceLocationId);
+    const dstLoc = getLocation(t.destinationLocationId);
+    const reqBy  = getUser(t.requestedByUserId);
+    const appBy  = t.approvedByUserId ? getUser(t.approvedByUserId) : null;
+    const pickedBy = t.pickedByUserId ? getUser(t.pickedByUserId) : null;
+    const recvBy = t.receivedByUserId ? getUser(t.receivedByUserId) : null;
+
+    const typeLabel = { warehouse_to_area:'WH → Area', area_to_area:'Area → Area', area_to_warehouse:'Area → WH' };
+    const timelineSteps = ['Draft','Submitted','Approved','Picked','In Transit','Received'];
+    const statusOrder = { Draft:0,Submitted:1,Approved:2,Picked:3,'In Transit':4,Received:5,'Partially Received':5,Cancelled:-1,Rejected:-1 };
+    const currentIdx = statusOrder[t.status] ?? 0;
+
+    const relatedMovements = inventoryMovements.filter(m => m.referenceId === t.id);
+
+    const canSubmit  = t.status === 'Draft';
+    const canApprove = t.status === 'Submitted';
+    const canPick    = t.status === 'Approved';
+    const canSend    = t.status === 'Picked';
+    const canReceive = t.status === 'In Transit';
+    const canCancel  = !['Received','Partially Received','Cancelled','Rejected'].includes(t.status);
+
+    const movTypeColors = { reserve:COLORS.orange, unreserve:COLORS.textMuted, issue:COLORS.accent, receipt:COLORS.green, adjustment:COLORS.purple };
+
+    return (
+      <div>
+        <div style={{ display:'flex',alignItems:'center',gap:8,marginBottom:16,fontSize:13,color:COLORS.textSecondary,cursor:'pointer' }}
+          onClick={()=>setCurrentPage('transfers')}>
+          <ChevronLeft size={16}/>Back to Transfers
+        </div>
+
+        <div style={{ display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:20 }}>
+          <div>
+            <h1 style={{ fontSize:22,fontWeight:700,color:COLORS.text,margin:0 }}>{t.transferNo}</h1>
+            <div style={{ display:'flex',gap:10,alignItems:'center',marginTop:6 }}>
+              <StatusBadge status={t.status}/>
+              <span style={{ fontSize:12,color:COLORS.textSecondary }}>{typeLabel[t.transferType]}</span>
+              <span style={{ fontSize:12,color:COLORS.textMuted }}>Created {t.createdAt.slice(0,10)}</span>
+            </div>
+          </div>
+          <div style={{ display:'flex',gap:8,flexWrap:'wrap',justifyContent:'flex-end' }}>
+            {canSubmit  && <button onClick={()=>submitTransfer(t.id)}  style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Submit</button>}
+            {canApprove && <button onClick={()=>approveTransfer(t.id)} style={{ background:COLORS.green, color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Approve</button>}
+            {canPick    && <button onClick={()=>pickTransfer(t.id)}    style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Mark Picked</button>}
+            {canSend    && <button onClick={()=>sendTransfer(t.id)}    style={{ background:COLORS.accent,color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Mark Sent</button>}
+            {canReceive && !showReceive && <button onClick={initReceipt} style={{ background:COLORS.green,color:'white',border:'none',borderRadius:6,padding:'8px 16px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Receive</button>}
+            {canCancel  && <button onClick={()=>cancelTransfer(t.id)}  style={{ background:'white',border:`1px solid ${COLORS.red}`,color:COLORS.red,borderRadius:6,padding:'8px 16px',fontSize:13,cursor:'pointer',fontWeight:500 }}>Cancel</button>}
+          </div>
+        </div>
+
+        <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:16 }}>
+          <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:16 }}>
+            <h3 style={{ fontSize:13,fontWeight:600,margin:'0 0 12px',color:COLORS.textSecondary }}>Transfer Info</h3>
+            <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:8 }}>
+              {[['Source',srcLoc.name],['Destination',dstLoc.name],['Project',projects.find(p=>p.id===t.projectId)?.code||'—'],['Type',typeLabel[t.transferType]],['Requested By',reqBy?.name||'—'],['Approved By',appBy?.name||'—'],['Picked By',pickedBy?.name||'—'],['Received By',recvBy?.name||'—']].map(([k,v])=>(
+                <div key={k} style={{ padding:'8px 10px',background:'#FAFAF8',borderRadius:5 }}>
+                  <div style={{ fontSize:10,color:COLORS.textSecondary,marginBottom:2 }}>{k}</div>
+                  <div style={{ fontSize:12,fontWeight:500 }}>{v}</div>
+                </div>
+              ))}
+            </div>
+            {t.reason && <div style={{ marginTop:10,padding:'8px 10px',background:'#FAFAF8',borderRadius:5,fontSize:12 }}><strong>Reason:</strong> {t.reason}</div>}
+            {t.notes && <div style={{ marginTop:6,padding:'8px 10px',background:'#FAFAF8',borderRadius:5,fontSize:12,color:COLORS.textSecondary }}><strong>Notes:</strong> {t.notes}</div>}
+          </div>
+
+          <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:16 }}>
+            <h3 style={{ fontSize:13,fontWeight:600,margin:'0 0 16px',color:COLORS.textSecondary }}>Status Timeline</h3>
+            {t.status === 'Cancelled' ? (
+              <div style={{ padding:'12px 16px',background:COLORS.redLight,borderRadius:6,fontSize:12,color:COLORS.red,fontWeight:500 }}>This transfer was cancelled</div>
+            ) : (
+              <div style={{ display:'flex',flexDirection:'column',gap:0 }}>
+                {timelineSteps.map((step,i)=>{
+                  const done = i <= currentIdx;
+                  const curr = i === currentIdx;
+                  return (
+                    <div key={step} style={{ display:'flex',gap:12,alignItems:'flex-start' }}>
+                      <div style={{ display:'flex',flexDirection:'column',alignItems:'center' }}>
+                        <div style={{ width:22,height:22,borderRadius:11,background:done?COLORS.green:COLORS.border,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0 }}>
+                          {done ? <Check size={11} style={{ color:'white' }}/> : <div style={{ width:7,height:7,borderRadius:4,background:'white' }}/>}
+                        </div>
+                        {i < timelineSteps.length-1 && <div style={{ width:2,height:18,background:done?COLORS.green+'50':COLORS.border }}/>}
+                      </div>
+                      <div style={{ paddingBottom:10 }}>
+                        <div style={{ fontSize:12,fontWeight:curr?700:500,color:curr?COLORS.text:done?COLORS.textSecondary:COLORS.textMuted }}>{step}</div>
+                        {step==='Draft' && <div style={{ fontSize:10,color:COLORS.textMuted }}>{t.createdAt.slice(0,10)}</div>}
+                        {step==='In Transit'&&t.sentAt && <div style={{ fontSize:10,color:COLORS.textMuted }}>{t.sentAt.slice(0,10)}</div>}
+                        {step==='Received'&&t.receivedAt && <div style={{ fontSize:10,color:COLORS.textMuted }}>{t.receivedAt.slice(0,10)}</div>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Lines table */}
+        <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,overflow:'hidden',marginBottom:16 }}>
+          <div style={{ padding:'12px 16px',borderBottom:`1px solid ${COLORS.border}`,fontSize:13,fontWeight:600 }}>Transfer Lines ({t.lines.length})</div>
+          <div style={{ overflowX:'auto' }}>
+            <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:700 }}>
+              <thead>
+                <tr style={{ background:'#FAFAF8' }}>
+                  {['Material','UOM','Requested','Approved','Picked','Shipped','Received','Condition / Note'].map(h=>(
+                    <th key={h} style={{ textAlign:'left',padding:'9px 12px',fontWeight:600,color:COLORS.textSecondary,fontSize:11,borderBottom:`1px solid ${COLORS.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {t.lines.map(l=>{
+                  const mat = materials.find(m=>m.id===l.materialId);
+                  const hasDisc = l.discrepancyNote && l.receivedQty !== l.shippedQty;
+                  return (
+                    <tr key={l.id} style={{ borderBottom:`1px solid ${COLORS.borderLight}`,background:hasDisc?COLORS.yellowLight+'40':'transparent' }}>
+                      <td style={{ padding:'9px 12px',fontWeight:500 }}>{mat?.name||l.materialId}</td>
+                      <td style={{ padding:'9px 12px',color:COLORS.textMuted }}>{l.uom}</td>
+                      <td style={{ padding:'9px 12px' }}>{l.requestedQty}</td>
+                      <td style={{ padding:'9px 12px',color:l.approvedQty>0?COLORS.green:COLORS.textMuted }}>{l.approvedQty||'—'}</td>
+                      <td style={{ padding:'9px 12px',color:l.pickedQty>0?COLORS.accent:COLORS.textMuted }}>{l.pickedQty||'—'}</td>
+                      <td style={{ padding:'9px 12px' }}>{l.shippedQty||'—'}</td>
+                      <td style={{ padding:'9px 12px',fontWeight:l.receivedQty>0?700:400,color:l.receivedQty>0?COLORS.green:COLORS.textMuted }}>{l.receivedQty||'—'}</td>
+                      <td style={{ padding:'9px 12px',fontSize:11 }}>
+                        {l.conditionNote||'—'}
+                        {l.discrepancyNote && <div style={{ color:COLORS.orange,marginTop:2 }}>{l.discrepancyNote}</div>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Receive Form */}
+        {showReceive && canReceive && (
+          <div style={{ background:COLORS.card,border:`2px solid ${COLORS.green}`,borderRadius:8,padding:20,marginBottom:16 }}>
+            <div style={{ display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12 }}>
+              <h3 style={{ fontSize:14,fontWeight:600,margin:0 }}>Record Receipt at {dstLoc.name}</h3>
+              <button onClick={()=>setShowReceive(false)} style={{ background:'none',border:'none',cursor:'pointer',color:COLORS.textMuted }}><X size={16}/></button>
+            </div>
+            <div style={{ padding:'8px 12px',background:COLORS.greenLight,borderRadius:6,marginBottom:12,fontSize:12,color:COLORS.green }}>
+              Verify quantities received. Adjust and add discrepancy notes if needed.
+            </div>
+            {receiptLines.map((rl,i)=>{
+              const mat = materials.find(m=>m.id===rl.materialId);
+              return (
+                <div key={rl.lineId} style={{ padding:14,background:'#FAFAF8',borderRadius:6,marginBottom:10 }}>
+                  <div style={{ fontWeight:500,fontSize:13,marginBottom:10 }}>{mat?.name} <span style={{ color:COLORS.textMuted,fontWeight:400,fontSize:11 }}>({rl.uom}) — Shipped: {rl.shippedQty}</span></div>
+                  <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10 }}>
+                    <div>
+                      <label style={{ fontSize:11,color:COLORS.textSecondary,display:'block',marginBottom:4 }}>Received Qty *</label>
+                      <input type="number" min="0" max={rl.shippedQty} value={rl.receivedQty}
+                        onChange={e=>setReceiptLines(prev=>prev.map((r,j)=>j===i?{...r,receivedQty:Number(e.target.value)}:r))}
+                        style={{ width:'100%',padding:'7px 10px',border:`1px solid ${COLORS.border}`,borderRadius:5,fontSize:12,outline:'none' }}/>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,color:COLORS.textSecondary,display:'block',marginBottom:4 }}>Condition</label>
+                      <select value={rl.conditionNote} onChange={e=>setReceiptLines(prev=>prev.map((r,j)=>j===i?{...r,conditionNote:e.target.value}:r))}
+                        style={{ width:'100%',padding:'7px 10px',border:`1px solid ${COLORS.border}`,borderRadius:5,fontSize:12,outline:'none',background:'white' }}>
+                        <option>Good</option><option>Damaged</option><option>Partial</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style={{ fontSize:11,color:COLORS.textSecondary,display:'block',marginBottom:4 }}>Discrepancy Note</label>
+                      <input value={rl.discrepancyNote} onChange={e=>setReceiptLines(prev=>prev.map((r,j)=>j===i?{...r,discrepancyNote:e.target.value}:r))}
+                        placeholder="e.g. 2 sheets damaged"
+                        style={{ width:'100%',padding:'7px 10px',border:`1px solid ${COLORS.border}`,borderRadius:5,fontSize:12,outline:'none' }}/>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+            <div style={{ border:`2px dashed ${COLORS.border}`,borderRadius:6,padding:12,textAlign:'center',marginBottom:14 }}>
+              <Camera size={18} style={{ color:COLORS.textMuted,marginBottom:4 }}/>
+              <div style={{ fontSize:11,color:COLORS.textMuted }}>Photo attachments (placeholder)</div>
+              <button onClick={()=>showToast('Photo upload not available in demo')}
+                style={{ marginTop:6,background:'white',border:`1px solid ${COLORS.border}`,borderRadius:5,padding:'4px 12px',fontSize:11,cursor:'pointer',color:COLORS.textSecondary,display:'inline-flex',alignItems:'center',gap:4 }}>
+                <Upload size={10}/>Upload
+              </button>
+            </div>
+            <div style={{ display:'flex',gap:10 }}>
+              <button onClick={()=>{ receiveTransfer(t.id, receiptLines); setShowReceive(false); }}
+                style={{ background:COLORS.green,color:'white',border:'none',borderRadius:6,padding:'9px 20px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Accept</button>
+              <button onClick={()=>{ const withNote=receiptLines.map(r=>({...r,discrepancyNote:r.discrepancyNote||'Discrepancy noted'})); receiveTransfer(t.id,withNote); setShowReceive(false); }}
+                style={{ background:COLORS.orange,color:'white',border:'none',borderRadius:6,padding:'9px 20px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Accept with Discrepancy</button>
+              <button onClick={()=>{ cancelTransfer(t.id); setShowReceive(false); }}
+                style={{ background:COLORS.red,color:'white',border:'none',borderRadius:6,padding:'9px 20px',fontSize:13,cursor:'pointer',fontWeight:600 }}>Reject</button>
+            </div>
+          </div>
+        )}
+
+        {/* Movement History */}
+        {relatedMovements.length > 0 && (
+          <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,overflow:'hidden',marginBottom:16 }}>
+            <div style={{ padding:'12px 16px',borderBottom:`1px solid ${COLORS.border}`,fontSize:13,fontWeight:600 }}>Movement History ({relatedMovements.length})</div>
+            <table style={{ width:'100%',borderCollapse:'collapse',fontSize:12 }}>
+              <thead>
+                <tr style={{ background:'#FAFAF8' }}>
+                  {['Type','Material','Qty','From','To','By','Date'].map(h=>(
+                    <th key={h} style={{ textAlign:'left',padding:'8px 12px',fontWeight:600,color:COLORS.textSecondary,fontSize:11,borderBottom:`1px solid ${COLORS.border}` }}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {relatedMovements.map(m=>{
+                  const mat = materials.find(x=>x.id===m.materialId);
+                  const c = movTypeColors[m.movementType]||COLORS.textMuted;
+                  return (
+                    <tr key={m.id} style={{ borderBottom:`1px solid ${COLORS.borderLight}` }}>
+                      <td style={{ padding:'8px 12px' }}><span style={{ fontSize:10,fontWeight:600,padding:'2px 7px',borderRadius:4,background:c+'18',color:c }}>{m.movementType}</span></td>
+                      <td style={{ padding:'8px 12px',fontWeight:500 }}>{mat?.name||m.materialId}</td>
+                      <td style={{ padding:'8px 12px',fontWeight:700 }}>{m.qty} {m.uom}</td>
+                      <td style={{ padding:'8px 12px',fontSize:11,color:COLORS.textSecondary }}>{m.fromLocationId?getLocation(m.fromLocationId).name:'—'}</td>
+                      <td style={{ padding:'8px 12px',fontSize:11,color:COLORS.textSecondary }}>{m.toLocationId?getLocation(m.toLocationId).name:'—'}</td>
+                      <td style={{ padding:'8px 12px',color:COLORS.textSecondary }}>{getUser(m.performedByUserId)?.name?.split(' ')[0]||'—'}</td>
+                      <td style={{ padding:'8px 12px',color:COLORS.textMuted }}>{m.timestamp.slice(0,10)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Attachments placeholder */}
+        <div style={{ background:COLORS.card,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:16 }}>
+          <h3 style={{ fontSize:13,fontWeight:600,margin:'0 0 10px' }}>Attachments</h3>
+          <div style={{ border:`2px dashed ${COLORS.border}`,borderRadius:6,padding:16,textAlign:'center' }}>
+            <Upload size={18} style={{ color:COLORS.textMuted,marginBottom:6 }}/>
+            <div style={{ fontSize:12,color:COLORS.textMuted }}>Drag & drop files or click to browse (placeholder)</div>
+            <button onClick={()=>showToast('File upload not available in demo')}
+              style={{ marginTop:8,background:'white',border:`1px solid ${COLORS.border}`,borderRadius:5,padding:'5px 14px',fontSize:11,cursor:'pointer',color:COLORS.textSecondary }}>Browse Files</button>
           </div>
         </div>
       </div>
@@ -4390,6 +5276,9 @@ export default function BergApp() {
       case 'estimates': return <EstimatesPage/>;
       case 'materials': return <MaterialsPage/>;
       case 'warehouse': return <WarehousePage/>;
+      case 'transfers':       return <TransferListPage/>;
+      case 'new-transfer':    return <NewTransferPage/>;
+      case 'transfer-detail': return <TransferDetailPage/>;
       case 'field-reports': return <FieldReportsPage/>;
       case 'timesheets': return <TimesheetsPage/>;
       case 'approvals': return <ApprovalsPage/>;
@@ -4465,8 +5354,11 @@ export default function BergApp() {
               </button>
               {showQuickCreate && (
                 <div style={{ position:'absolute',top:'100%',right:0,marginTop:4,background:'white',border:`1px solid ${COLORS.border}`,borderRadius:8,boxShadow:'0 8px 30px rgba(0,0,0,0.12)',padding:4,zIndex:1000,minWidth:180 }}>
-                  {['New Project','Material Request','Weekly Report','Timesheet Entry','Change Order'].map(item=>(
-                    <div key={item} onClick={()=>{showToast(`${item} form opened`);setShowQuickCreate(false);}}
+                  {['New Project','Material Request','Weekly Report','Timesheet Entry','Change Order','Transfer Order'].map(item=>(
+                    <div key={item} onClick={()=>{
+                      if(item==='Transfer Order'){setCurrentPage('new-transfer');setShowQuickCreate(false);return;}
+                      showToast(`${item} form opened`);setShowQuickCreate(false);
+                    }}
                       style={{ padding:'8px 12px',fontSize:12,cursor:'pointer',borderRadius:4 }}
                       onMouseEnter={e=>e.currentTarget.style.background='#F5F5F5'}
                       onMouseLeave={e=>e.currentTarget.style.background='transparent'}>
